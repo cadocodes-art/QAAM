@@ -1,6 +1,6 @@
-# Quiet as a Mouse V1.3.1 - Animal design review
+# Quiet as a Mouse V1.3.2 - Animal design review
 
-V1.3.1 preserves the V1.3 designs and adds clearer articulated motion.
+V1.3.2 preserves the V1.3 designs and V1.3.1 articulated motion.
 
 All 210 roster animals have individual design notes below. These notes describe
 the identifying features used for the cartoon illustrations and link to the
@@ -9,7 +9,7 @@ breeds, sexes, ages, and individuals may look different. Small details and
 real-world size differences are simplified for visibility in the game.
 
 Movement labels describe the animation used in this game, not every behavior
-the animal can perform. Game rarity is unchanged from V1.2.1 and is not a
+the animal can perform. Game rarity uses the V1.3.2 balance listed in README.md and is not a
 current wildlife-population estimate.
 
 Use animal-preview.html to inspect the illustrations and animations directly.

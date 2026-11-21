@@ -1,9 +1,31 @@
-# Quiet as a Mouse - V1.3.1
+# Quiet as a Mouse - V1.3.2
 
-V1.3.1 makes legs, tails, wings, flippers, and fins visibly animate. The game title, top-left badge,
-animal preview page, and ZIP filename all show **V1.3.1**.
+V1.3.2 applies the agreed spawn balance. The game title, top-left badge,
+animal preview page, and ZIP filename all show **V1.3.2**.
 
-## Animation update
+## V1.3.2 spawn balance
+
+| Tier | Continuous quiet required | Chance per eligible check |
+|---|---|---|
+| Ultra-Common | 15 seconds | 1 in 6 |
+| Common | 45 seconds | 1 in 15 |
+| Uncommon | 1 minute | 1 in 24 |
+| Rare | 2 minutes | 1 in 45 |
+| Epic | 3 minutes | 1 in 90 |
+| Legendary | 4 minutes | 1 in 150 |
+| Mythic | 6 minutes | 1 in 300 |
+| Godly | 8 minutes | 1 in 600 |
+| Face-image tier | 10 minutes | 1 in 1,500 |
+
+Checks still happen every 5 seconds. Each tier first requires continuous quiet
+at its existing sound threshold, then rolls its chance on each eligible check.
+Passing the timer makes a tier eligible; it does not guarantee an arrival.
+A sound above a tier's quiet threshold resets that tier's timer.
+
+The 210 animals, V1.3.1 animations, scenery, microphone/settings behavior, and
+one-or-two-visitors-per-loud-burst rule are preserved.
+
+## Animation features from V1.3.1
 
 - Clearer anchored leg strides, insect knee bends, tail sways and wingbeats.
 - Missing tail joints and fixed limb details now move with their body parts.
@@ -28,8 +50,8 @@ waddling, crawling, slithering, paddling, swimming, or pulsing. Starting,
 stopping, and turning are eased. Wings and limbs pivot at their attachments.
 The Reduce motion setting freezes decorative joint motion and hopping.
 
-The panorama, 210-animal roster, rarity table, microphone controls, and
-one-or-two-visitors-per-loud-burst rule from V1.2.1 remain in place.
+The rarity values above replace the previous table. Sound thresholds and the
+5-second check interval are unchanged.
 
 ## Preview every animal
 
@@ -48,13 +70,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.3.1.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.3.2.zip** and choose Extract All.
 2. Open the extracted folder and select all files inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs` file and both PNGs.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.1.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.2.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is
@@ -63,7 +85,7 @@ needed. Keep your existing working Cloudflare settings.
 ## File guide
 
 - `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
-- `data.mjs`, `core.mjs`: roster and unchanged rarity/scare rules.
+- `data.mjs`, `core.mjs`: roster, V1.3.2 rarity values, and existing scare rules.
 - `art.mjs`: illustration selection.
 - `mammal-art.mjs`, `bird-art.mjs`, `invertebrate-art.mjs`, `aquatic-art.mjs`:
   animal drawings.
@@ -83,7 +105,8 @@ Use the published HTTPS site in a browser with microphone support and allow
 access when starting. Audio is processed on the device, never recorded or
 uploaded. The main game's preview works without a microphone.
 
-Animal artwork was rasterized and visually reviewed. Automated checks cover
+Animal artwork was rasterized and visually reviewed during V1.3/V1.3.1 and is
+unchanged in this update. Automated checks cover
 roster coverage, SVG validity, joint poses, movement profiles, shoreline bounds,
 rarity timers/chances, and the one-or-two-animal scare rule. Live browser,
 physical microphone, and touch-device testing were not available in this run.
