@@ -13,4 +13,4 @@ export function advance(state,dt,level,threshold,random=Math.random){
  state.present.add(chosen.id);arrived.push(chosen);}}
  return {arrived,fled};
 }
-export function shoreX(y){const pts=[[.5,1.80],[.55,1.66],[.62,1.51],[.68,1.55],[.73,1.60],[.79,1.57],[.85,1.63],[1,1.74]];for(let i=1;i<pts.length;i++)if(y<=pts[i][0]){const[a,x]=pts[i-1],[b,z]=pts[i];return x+(z-x)*(y-a)/(b-a);}return 1.74;}
+export {shoreX} from './panorama.mjs';

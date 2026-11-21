@@ -1,5 +1,6 @@
 import {TIERS,SPECIES} from './data.mjs';
-import {advance,makeState,clamp,volumeLevel,shoreX} from './core.mjs';
+import {advance,makeState,clamp,volumeLevel} from './core.mjs';
+import {PANORAMA,SCENE_HEIGHT,SCENE_RATIO,habitatBounds,waterClip} from './panorama.mjs';
 import {art} from './art.mjs';
 import {animateAnimal} from './original-animals.mjs';
 const $=id=>document.getElementById(id),world=$('world'),viewport=$('viewport');
@@ -21,10 +22,39 @@ function navigate(direction){viewport.scrollBy({left:direction*viewport.clientWi
 $('left').onclick=()=>navigate(-1);$('right').onclick=()=>navigate(1);
 viewport.onkeydown=e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();navigate(e.key==='ArrowRight'?1:-1);}};
 let drag=null;viewport.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0){drag={x:e.clientX,scroll:viewport.scrollLeft};viewport.setPointerCapture(e.pointerId);}});viewport.addEventListener('pointermove',e=>{if(drag)viewport.scrollLeft=drag.scroll+(drag.x-e.clientX)*settings.scrollSpeed;});viewport.addEventListener('pointerup',()=>drag=null);viewport.addEventListener('pointercancel',()=>drag=null);
-viewport.addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();viewport.scrollLeft+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*(e.deltaMode===1?20:1)*settings.scrollSpeed;},{passive:false});
-viewport.addEventListener('scroll',()=>{$('location').textContent=['THE MEADOW','THE SHORE','OPEN WATER'][clamp(Math.floor((viewport.scrollLeft+viewport.clientWidth/2)/(world.clientWidth/3)),0,2)];});
+viewport.addEventListener('wheel',e=>{if(e.ctrlKey)return;e.preventDefault();viewport.scrollLeft+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*(e.deltaMode===1?20:e.deltaMode===2?viewport.clientWidth:1)*settings.scrollSpeed;},{passive:false});
+function updateLocation(){
+ const center=(viewport.scrollLeft+viewport.clientWidth/2)/world.clientWidth;
+ $('location').textContent=center<.43?'THE MEADOW':center<.61?'THE SHORE':'OPEN WATER';
+ $('left').disabled=viewport.scrollLeft<=1;
+ $('right').disabled=viewport.scrollLeft>=world.clientWidth-viewport.clientWidth-1;
+}
+viewport.addEventListener('scroll',updateLocation,{passive:true});
+world.style.setProperty('--panorama-top',`${-PANORAMA.top/SCENE_HEIGHT*100}%`);
+world.style.setProperty('--panorama-height',`${PANORAMA.height/SCENE_HEIGHT*100}%`);
+world.style.setProperty('--water-clip',waterClip());
+let firstLayout=true;
+function layoutWorld(){
+ const fraction=firstLayout?0:viewport.scrollLeft/Math.max(1,world.clientWidth-viewport.clientWidth);
+ world.style.width=Math.max(viewport.clientWidth,viewport.clientHeight*SCENE_RATIO)+'px';
+ viewport.scrollLeft=fraction*Math.max(0,world.clientWidth-viewport.clientWidth);
+ firstLayout=false;updateLocation();
+}
+new ResizeObserver(layoutWorld).observe(viewport);layoutWorld();
+$('panoramaImage').addEventListener('error',()=>announce('The background is missing. Upload panorama.png beside index.html, then reload.'));
+
 function size(s){if(['ant','insect','bee','beetle','spider','butterfly','worm','snail','shrimp'].includes(s.kind))return 65;if(['bird','rodent','rabbit','frog','fish'].includes(s.kind))return 110;if(['whale','elephant','giraffe'].includes(s.kind))return 230;return 165;}
-function spawn(s,preview=false){const old=actors.get(s.id);if(old){old.el.remove();actors.delete(s.id);}const y=.64+Math.random()*.28,shore=shoreX(y);const x=s.water?shore+.16+Math.random()*(2.88-shore-.16):.12+Math.random()*(shore-.28);const el=document.createElement('div');el.className='animal'+(s.water?' water':'');el.dataset.species=s.kind;el.innerHTML=art(s);el.setAttribute('aria-label',s.name);el.setAttribute('role','img');$('animals').append(el);actors.set(s.id,{s,el,x,y,dir:Math.random()<.5?-1:1,target:Math.random()*6+2,phase:Math.random()*6,flee:0,preview});}
+function spawn(s,preview=false){
+ const old=actors.get(s.id);if(old){old.el.remove();actors.delete(s.id);}
+ const h=world.clientHeight,w=size(s)*clamp(h/850,.65,1.25),spriteH=w*165/264;
+ const minY=s.water?Math.max(.72,.59+spriteH/h):.72;
+ const y=minY+Math.random()*(.96-minY);
+ const {min,max}=habitatBounds(y,w,spriteH,world.clientWidth,h,s.water);
+ const x=min+Math.random()*(max-min);
+ const el=document.createElement('div');el.className='animal'+(s.water?' water':'');el.dataset.species=s.kind;
+ el.innerHTML=art(s);el.setAttribute('aria-label',s.name);el.setAttribute('role','img');$('animals').append(el);
+ actors.set(s.id,{s,el,x,y,dir:Math.random()<.5?-1:1,target:Math.random()*6+2,phase:Math.random()*6,flee:0,preview});
+}
 function clearAnimals(){for(const a of actors.values())a.el.remove();actors.clear();state=makeState();updateRoster();}
 function stop(reason='Listening paused. Your visitors will return when you start again.'){
  generation++;starting=false;$('start').disabled=false;$('pause').disabled=false;
@@ -50,10 +80,10 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
  if(now-lastRender>32){const elapsed=(now-lastRender)/1000;lastRender=now;const panel=world.clientWidth/3,h=world.clientHeight;
  for(const[id,a]of actors){a.target-=elapsed;if(a.target<=0){a.dir=Math.random()<.28?0:Math.random()<.5?-1:1;a.target=2+Math.random()*5;}const moving=a.flee>0||a.dir!==0;
- const scale=clamp(h/850,.65,1.25),w=size(a.s)*scale,half=w/(2*panel),top=a.y-w*165/264/h;
- const edges=Array.from({length:12},(_,i)=>shoreX(Math.max(.51,top+(a.y-top)*i/11)));
- const min=a.s.water?Math.max(...edges)+half+.025:half+.025,max=a.s.water?3-half-.025:Math.min(...edges)-half-.025;
- if(a.flee){a.flee-=elapsed;a.x+=(a.dir||1)*elapsed*.13;a.el.style.opacity=Math.max(0,a.flee/1.2);if(a.flee<=0){a.el.remove();actors.delete(id);continue;}}
+ const scale=clamp(h/850,.65,1.25),w=size(a.s)*scale,spriteH=w*165/264;
+ if(a.s.water)a.y=clamp(a.y,Math.max(.72,.59+spriteH/h),.96);
+ const {min,max}=habitatBounds(a.y,w,spriteH,world.clientWidth,h,a.s.water);
+ if(a.flee){a.flee-=elapsed;a.x=clamp(a.x+(a.dir||1)*elapsed*.13,min,max);a.el.style.opacity=Math.max(0,a.flee/1.2);if(a.flee<=0){a.el.remove();actors.delete(id);continue;}}
  else{a.x+=a.dir*elapsed*.012;if(a.x<min){a.x=min;a.dir=1;}if(a.x>max){a.x=max;a.dir=-1;}}
  a.el.style.width=w+'px';a.el.style.height=w*165/264+'px';a.el.style.left=a.x*panel-w/2+'px';a.el.style.top=a.y*h-w*165/264+'px';a.el.style.zIndex=Math.floor(a.y*100);if(a.dir)a.el.style.transform=`scaleX(${a.dir>0?1:-1})`;a.el.classList.toggle('idle',!moving);a.phase+=elapsed*(a.flee?16:5);
  if(a.el.querySelector('[data-body]'))animateAnimal(a.el,a.phase,moving,a.dir,now/1000,settings.reduceMotion);
