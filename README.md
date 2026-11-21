@@ -1,9 +1,30 @@
-# Quiet as a Mouse - V1.3.2
+# Quiet as a Mouse - V1.3.3
 
-V1.3.2 applies the agreed spawn balance. The game title, top-left badge,
-animal preview page, and ZIP filename all show **V1.3.2**.
+V1.3.3 adds offscreen arrivals and Autoscroll. The game title, top-left badge,
+animal preview page, and ZIP filename all show **V1.3.3**.
 
-## V1.3.2 spawn balance
+## New in V1.3.3
+
+- Land visitors walk, hop, or crawl in from a side of the screen.
+- Aquatic visitors swim or drift in from a side and remain in the water.
+- Flying visitors enter from a side or descend from above.
+- Arrivals no longer fade in. The existing startled departure behavior remains.
+- If you are looking away from an animal's habitat, it enters that habitat
+  off camera. Scroll over to find it; it will not cross the wrong habitat.
+
+## Autoscroll
+
+Use the **Autoscroll** checkbox at the top center of the game. The camera travels
+back and forth across the panorama, slowing and turning around at each end.
+Use its **Speed** slider to select 0.25x through 3x speed. Default is off, at 1x.
+The checkbox and speed are remembered on this device.
+
+Dragging, swiping, scrolling the wheel, or using the arrow controls pauses
+Autoscroll while you interact and for about three seconds afterward. It also
+pauses while a dialog is open or the tab is hidden. Uncheck it to stop it.
+Autoscroll works in the microphone-free preview too.
+
+## Spawn balance retained from V1.3.2
 
 | Tier | Continuous quiet required | Chance per eligible check |
 |---|---|---|
@@ -50,7 +71,7 @@ waddling, crawling, slithering, paddling, swimming, or pulsing. Starting,
 stopping, and turning are eased. Wings and limbs pivot at their attachments.
 The Reduce motion setting freezes decorative joint motion and hopping.
 
-The rarity values above replace the previous table. Sound thresholds and the
+The rarity values above are unchanged from V1.3.2. Sound thresholds and the
 5-second check interval are unchanged.
 
 ## Preview every animal
@@ -70,13 +91,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.3.2.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.3.3.zip** and choose Extract All.
 2. Open the extracted folder and select all files inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs` file and both PNGs.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.2.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.3.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is
@@ -86,6 +107,7 @@ needed. Keep your existing working Cloudflare settings.
 
 - `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
 - `data.mjs`, `core.mjs`: roster, V1.3.2 rarity values, and existing scare rules.
+- `travel.mjs`: offscreen entrance paths and back-and-forth Autoscroll.
 - `art.mjs`: illustration selection.
 - `mammal-art.mjs`, `bird-art.mjs`, `invertebrate-art.mjs`, `aquatic-art.mjs`:
   animal drawings.
@@ -108,5 +130,8 @@ uploaded. The main game's preview works without a microphone.
 Animal artwork was rasterized and visually reviewed during V1.3/V1.3.1 and is
 unchanged in this update. Automated checks cover
 roster coverage, SVG validity, joint poses, movement profiles, shoreline bounds,
-rarity timers/chances, and the one-or-two-animal scare rule. Live browser,
+rarity timers/chances, and the one-or-two-animal scare rule. V1.3.3 checks also
+cover offscreen starts, continuous habitat-safe entrance paths, Autoscroll speed
+and both-end reversal, saved controls, and manual-input/dialog/tab pauses.
+Live browser,
 physical microphone, and touch-device testing were not available in this run.

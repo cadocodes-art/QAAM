@@ -9,3 +9,14 @@
 /* V1.3.1: each articulated part rotates around its own local anchor. */
 .animal [data-anim],.animal [data-body],.card [data-anim],.card [data-body]{transform-origin:0 0;transform-box:view-box}
 .motion-notice{pointer-events:auto;margin-top:10px;padding:10px 12px;border-radius:12px;background:#faf7e9;color:#344e3c;font:12px Arial,sans-serif;line-height:1.4;box-shadow:0 3px 15px #1d382217}
+
+/* V1.3.3: keep entering sprites from extending the scrollable world. */
+#animals{overflow:hidden}
+.autoscroll{position:absolute;z-index:5;top:max(28px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;border-radius:16px;padding:10px 14px;width:270px;font:14px Arial,sans-serif}
+.auto-toggle{display:flex;align-items:center;gap:7px;white-space:nowrap;min-height:32px;cursor:pointer}.auto-toggle input{width:18px;height:18px;margin:0;accent-color:#47694c}
+.auto-speed{display:flex;flex:1;min-width:0;flex-direction:column;gap:1px;font-size:12px}.auto-speed span{display:flex;justify-content:space-between}.auto-speed input{margin:0;min-width:0;min-height:24px}
+@media(max-width:1040px){.autoscroll{top:158px}.hud{top:224px}}
+@media(max-width:700px){.autoscroll{top:124px;width:260px;padding:7px 12px}.hud{top:186px}}
+@media(max-height:590px){.autoscroll{top:108px;padding:6px 12px}.hud{top:168px}}
+@media(max-height:590px) and (min-width:900px){.autoscroll{top:12px}.hud{top:117px}}
+@media(max-width:380px){h1{font-size:20px}.autoscroll{width:250px;max-width:calc(100% - 28px)}}
