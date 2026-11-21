@@ -1,106 +1,79 @@
-# Quiet as a Mouse — V1.2.1
+# Quiet as a Mouse - V1.3
 
-This ZIP contains the complete game as separate, editable HTML, CSS, JavaScript,
-and PNG files. Keep all of these files together at the top level.
+V1.3 focuses on animal appearance and movement. The game title, top-left badge,
+animal preview page, and ZIP filename all show **V1.3**.
 
-## What changed
+## Animal update
 
-- One continuous panorama replaces the three background panels.
-- Empty space above and below the artwork is hidden in the game.
-- Explore horizontally by swiping, dragging, scrolling, or using the arrow buttons.
-  Keyboard users can focus the meadow and press the left/right arrow keys.
-- The scene keeps its proportions when the screen changes size or orientation.
-- Animal movement boundaries follow the new shoreline. Water animals appear
-  beneath a translucent water layer; land animals stay on land.
-- The title and version badge now say V1.2.1.
+All 210 roster entries have been reviewed for identifying features. The new
+illustrations keep the soft, flat cartoon style while using more appropriate
+body proportions, faces, feet, tails, wings, and markings.
 
-### Latest V1.2.1 adjustments
+Examples include patterned flying butterflies, compact rabbits with long ears
+and powerful hind feet, distinct bird bills and plumage, webbed seal flippers,
+armadillo armor, giraffe necks, elephant trunks, and different cat markings.
 
-- Each loud burst scares away one or two randomly selected visitors, or the
-  remaining visitor if only one is present. Other visitors stay discovered.
-- Sustained noise does not repeatedly clear the meadow. Two uninterrupted
-  seconds below the loud threshold allow a new loud burst to cause another scare.
-- Insect and spider legs stay attached to their bodies and take small alternating
-  steps. Leg lengths stay fixed, and legs stop moving when the animal rests or
-  Reduce motion is enabled.
-- Arrival times and chances now use the original, harder rarity table below.
+Animals use appropriate movement groups: fluttering/flying, hopping, walking,
+waddling, crawling, slithering, paddling, swimming, or pulsing. Starting,
+stopping, and turning are eased. Wings and limbs pivot at their attachments.
+The Reduce motion setting freezes decorative joint motion and hopping.
 
-There are still 210 animals. The panorama and existing settings remain in place.
+The panorama, 210-animal roster, rarity table, microphone controls, and
+one-or-two-visitors-per-loud-burst rule from V1.2.1 remain in place.
 
-### Arrival rules
+## Preview every animal
 
-The game makes an independent check for each eligible tier every five seconds.
-The room must first remain continuously quiet for that tier's required time.
-Rarer tiers still require a lower sound level. Noise that exceeds a tier's quiet
-level resets its arrival timer; only sound above the on-screen loud threshold
-can scare away existing visitors. A successful roll selects one absent animal
-from that tier. The chances below are per tier check, not per animal.
+After publishing, open **animal-preview.html** on your site to inspect every
+animal. You can search by name, filter movement groups, and pause animations.
+For your existing site that is:
 
-| Tier | Continuous quiet required | Chance per check |
-| --- | --- | --- |
-| Ultra-Common | 5 seconds | 1 in 2 |
-| Common | 15 seconds | 1 in 5 |
-| Uncommon | 30 seconds | 1 in 12 |
-| Rare | 1 minute | 1 in 30 |
-| Epic | 2 minutes | 1 in 75 |
-| Legendary | 4 minutes | 1 in 200 |
-| Mythic | 7 minutes | 1 in 500 |
-| Godly | 10 minutes | 1 in 1,500 |
-| Face-image tier | 15 minutes | 1 in 10,000 |
+https://qaam.pages.dev/animal-preview.html
 
-## Update your existing GitHub / Cloudflare site
+This optional creator preview reveals all animal names. The actual game's
+collection still hides names until visitors arrive.
 
-1. Download this ZIP and choose **Extract All**.
-2. Open the extracted folder. Select all the files **inside** it.
-3. In your QAAM GitHub repository, choose **Add file → Upload files**.
-4. Upload the extracted files to the repository's top level, replacing files
-   with matching names. Include `panorama.png`, `face.png`, `panorama.mjs`,
-   and the new `insect-motion.mjs` file.
-5. Commit the changes to the branch connected to Cloudflare (normally `main`).
-6. Wait for the new production deployment to succeed.
-7. Open your site and refresh. On Windows, Ctrl+F5 forces a fresh load.
+**ANIMAL-REVIEW.md** contains the species-by-species design notes and research
+links. Broad group names and domestic animals use a representative form;
+sex, age, breed, and individual coloration can differ in real animals.
 
-Upload the extracted files, **not the ZIP or its enclosing folder**.
-The homepage filename must remain exactly `index.html`, without `(2)` or similar.
-The old `meadow.png`, `shore.png`, and `water.png` files are no longer used.
-They can stay in your repository or be removed later.
+## Upload the update
 
-This is a static site: it does not need a build step or package installation.
-Keep your existing working Cloudflare deployment settings.
+1. Download **Quiet-as-a-Mouse-V1.3.zip** and choose Extract All.
+2. Open the extracted folder and select all files inside it.
+3. Upload those files to the top level of your existing QAAM GitHub repository.
+4. Replace matching files and include every new `.mjs` file and both PNGs.
+5. Commit to the branch connected to your Cloudflare production site.
+6. Wait for that deployment to finish, then reload the site. On Windows,
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.
 
-## Files
+Upload the files themselves, not the ZIP or an enclosing folder. Keep the
+homepage filename exactly `index.html`. No build or package installation is
+needed. Keep your existing working Cloudflare settings.
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | Page structure and V1.2.1 label |
-| `style.css` | Appearance and responsive layout |
-| `game.mjs` | Microphone, animal movement, controls, and collection |
-| `core.mjs` | Quiet timers and arrival chances |
-| `data.mjs` | 210 animals and rarity tiers |
-| `art.mjs`, `original-animals.mjs` | Animal drawings and animation |
-| `insect-motion.mjs` | Attached, articulated insect and spider legs |
-| `panorama.mjs` | Panorama dimensions and shoreline boundaries |
-| `panorama.png` | Approved continuous background, with its original margins |
-| `face.png` | Rarest-tier picture |
-| `_headers`, `.nojekyll` | Hosting configuration |
+## File guide
 
-The background PNG deliberately retains its blank margins. The game displays
-only the landscape strip; you do not need to crop or edit the image yourself.
+- `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
+- `data.mjs`, `core.mjs`: roster and unchanged rarity/scare rules.
+- `art.mjs`: illustration selection.
+- `mammal-art.mjs`, `bird-art.mjs`, `invertebrate-art.mjs`, `aquatic-art.mjs`:
+  animal drawings.
+- `animal-motion.mjs`, `motion-profile.mjs`, `insect-motion.mjs`: joint poses,
+  movement types, and insect leg motion.
+- `panorama.mjs`, `panorama.png`: scrolling scenery and shoreline boundaries.
+- `face.png`: rarest-tier image.
+- `animal-preview.html`, `animal-preview.mjs`: optional creator preview.
+- `ANIMAL-REVIEW.md`: appearance audit and references.
+- `_headers`, `.nojekyll`: hosting configuration.
 
-## Playing and previewing
+Old unused files may remain in the repository; the new game will not load them.
 
-Use the published HTTPS site in a current browser and allow microphone access
-when you press **Enter the meadow** or **Start listening**. Audio is processed
-on the device; it is not recorded or uploaded. **Take a peek without a microphone**
-lets you inspect the scenery and example animals without microphone permission.
+## Microphone and verification
 
-For local development, serve this folder with a local web server. For example,
-with Python installed, run `python -m http.server 8000` inside the folder and
-open `http://localhost:8000`. Opening `index.html` directly as a downloaded file
-may prevent the JavaScript modules or microphone from working.
+Use the published HTTPS site in a browser with microphone support and allow
+access when starting. Audio is processed on the device, never recorded or
+uploaded. The main game's preview works without a microphone.
 
-Automated checks cover the exact rarity table, timed arrivals, probability
-boundaries, one-or-two departures, sustained noise, quiet rearming, retained
-visitors, all animal drawings, and fixed-length insect leg poses.
-Interface/audio integration uses mocks; live browser, physical microphone,
-and touch testing were not available for this adjustment.
+Animal artwork was rasterized and visually reviewed. Automated checks cover
+roster coverage, SVG validity, joint poses, movement profiles, shoreline bounds,
+rarity timers/chances, and the one-or-two-animal scare rule. Live browser,
+physical microphone, and touch-device testing were not available in this run.

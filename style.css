@@ -2,3 +2,6 @@
 .water-surface{z-index:200;pointer-events:none;opacity:.23;clip-path:var(--water-clip)}
 
 #viewport{overscroll-behavior-x:contain}footer button:disabled{opacity:.4;cursor:default}.scenery img{display:block}
+
+/* V1.3: joint motion is controlled by the shared animation rig. */
+#viewport{z-index:0}header,.hud,#message,footer{z-index:5}.intro{z-index:6}.animal .leg,.animal [data-leg],.animal .tail,.animal.water .body{animation:none}.animal{transition:none}.animal.airborne{filter:none}.animal.airborne:after{display:none}.animal svg{overflow:visible}

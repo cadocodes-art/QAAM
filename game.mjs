@@ -2,13 +2,13 @@ import {TIERS,SPECIES} from './data.mjs';
 import {advance,makeState,clamp,volumeLevel} from './core.mjs';
 import {PANORAMA,SCENE_HEIGHT,SCENE_RATIO,habitatBounds,waterClip} from './panorama.mjs';
 import {art} from './art.mjs';
-import {animateAnimal} from './original-animals.mjs';
-import {animateInsectLegs} from './insect-motion.mjs';
+import {animateCritter} from './animal-motion.mjs';
+import {visualProfile} from './motion-profile.mjs';
 const $=id=>document.getElementById(id),world=$('world'),viewport=$('viewport');
 const defaults={showSound:true,showCount:true,showTimer:true,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,sensitivity:50,scrollSpeed:1};
 let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem('quiet-mouse-v11-settings')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]===typeof defaults[k])settings[k]=saved[k];}catch{}
 settings.sensitivity=clamp(settings.sensitivity,0,100);settings.scrollSpeed=clamp(settings.scrollSpeed,.5,2);
-let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=22,level=0,last=0,calibration=null,raf=0,lastRender=0;
+let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=22,level=0,last=0,calibration=null,raf=0;
 const threshold=()=>clamp(baseline+18-(settings.sensitivity-50)*.4,10,80);
 const announce=text=>{$('message').textContent=text;};
 function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
@@ -44,17 +44,21 @@ function layoutWorld(){
 new ResizeObserver(layoutWorld).observe(viewport);layoutWorld();
 $('panoramaImage').addEventListener('error',()=>announce('The background is missing. Upload panorama.png beside index.html, then reload.'));
 
-function size(s){if(['ant','insect','bee','beetle','spider','butterfly','worm','snail','shrimp'].includes(s.kind))return 65;if(['bird','rodent','rabbit','frog','fish'].includes(s.kind))return 110;if(['whale','elephant','giraffe'].includes(s.kind))return 230;return 165;}
+function boundsFor(a,y,w,spriteH){
+ const h=world.clientHeight,ww=world.clientWidth;
+ if(a.profile.air&&!a.profile.fieldFlight){const half=w/ww*1.5;return {min:half+.025,max:3-half-.025};}
+ return habitatBounds(a.profile.fieldFlight?.82:y,w,spriteH,ww,h,a.s.water);
+}
 function spawn(s,preview=false){
  const old=actors.get(s.id);if(old){old.el.remove();actors.delete(s.id);}
- const h=world.clientHeight,w=size(s)*clamp(h/850,.65,1.25),spriteH=w*165/264;
- const minY=s.water?Math.max(.72,.59+spriteH/h):.72;
- const y=minY+Math.random()*(.96-minY);
- const {min,max}=habitatBounds(y,w,spriteH,world.clientWidth,h,s.water);
- const x=min+Math.random()*(max-min);
- const el=document.createElement('div');el.className='animal'+(s.water?' water':'');el.dataset.species=s.kind;
+ const profile=visualProfile(s),h=world.clientHeight,w=profile.size*clamp(h/850,.65,1.25),spriteH=w*165/264;
+ const minY=profile.air?(profile.fieldFlight?.55:.28):s.water?Math.max(.72,.59+spriteH/h):.73;
+ const maxY=profile.air?(profile.fieldFlight?.76:.57):.96;
+ const y=minY+Math.random()*(maxY-minY),dir=Math.random()<.5?-1:1;
+ const {min,max}=boundsFor({profile,s},y,w,spriteH),x=min+Math.random()*(max-min);
+ const el=document.createElement('div');el.className='animal'+(s.water?' water':'')+(profile.air?' airborne':'');el.dataset.species=s.kind;el.dataset.motion=profile.motion;
  el.innerHTML=art(s);el.setAttribute('aria-label',s.name);el.setAttribute('role','img');$('animals').append(el);
- actors.set(s.id,{s,el,x,y,dir:Math.random()<.5?-1:1,target:Math.random()*6+2,phase:Math.random()*6,flee:0,preview});
+ actors.set(s.id,{s,profile,el,x,y,baseY:y,dir,velocity:0,facing:dir,faceTarget:dir,target:Math.random()*5+3,phase:Math.random()*6.28,flee:0,preview,age:0,timeOffset:Math.random()*10});
 }
 function clearAnimals(){for(const a of actors.values())a.el.remove();actors.clear();state=makeState();updateRoster();}
 function stop(reason='Listening paused. Your visitors will return when you start again.'){
@@ -72,22 +76,42 @@ async function start(){if(starting)return;stop('Connecting your microphone…');
  mode='live';$('welcome').hidden=true;$('pause').textContent='Pause listening';beginCalibration();
  }catch(error){if(token!==generation)return;const msg=errorText(error);stop(msg);$('welcome').hidden=false;$('error').textContent=msg;}finally{if(token===generation){starting=false;$('start').disabled=false;$('pause').disabled=false;}}}
 $('start').onclick=start;$('pause').onclick=()=>mode==='live'?stop():start();$('calibrate').onclick=beginCalibration;
-$('preview').onclick=()=>{stop();mode='preview';$('welcome').hidden=true;for(const name of ['Ant','Red Fox','Snow Leopard','Komodo Dragon','Okapi','Harp Seal','Bottlenose Dolphin','Vaquita'])spawn(SPECIES.find(s=>s.name===name),true);announce('Preview · swipe or drag to explore. Start listening to discover animals.');$('pause').textContent='Start listening';};
+$('preview').onclick=()=>{stop();mode='preview';$('welcome').hidden=true;for(const name of ['Red Admiral Butterfly','Cabbage White Butterfly','Domestic Rabbit','House Sparrow','Red Fox','Snow Leopard','Komodo Dragon','Okapi','King Penguin','Harp Seal','Bottlenose Dolphin','Green Sea Turtle'])spawn(SPECIES.find(s=>s.name===name),true);announce('Preview · swipe or drag to explore. Start listening to discover animals.');$('pause').textContent='Start listening';};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(mode!=='off'||starting))stop('Paused while you were away. Start listening for a fresh visit.');});window.addEventListener('pagehide',()=>stop());
 function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  if(mode==='live'&&analyser){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
  if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;$('calibrationStatus').textContent='Calibrated. Sensitivity adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
  else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
- if(now-lastRender>32){const elapsed=(now-lastRender)/1000;lastRender=now;const panel=world.clientWidth/3,h=world.clientHeight;
- for(const[id,a]of actors){a.target-=elapsed;if(a.target<=0){a.dir=Math.random()<.28?0:Math.random()<.5?-1:1;a.target=2+Math.random()*5;}const moving=a.flee>0||a.dir!==0;
- const scale=clamp(h/850,.65,1.25),w=size(a.s)*scale,spriteH=w*165/264;
- if(a.s.water)a.y=clamp(a.y,Math.max(.72,.59+spriteH/h),.96);
- const {min,max}=habitatBounds(a.y,w,spriteH,world.clientWidth,h,a.s.water);
- if(a.flee){a.flee-=elapsed;a.x=clamp(a.x+(a.dir||1)*elapsed*.13,min,max);a.el.style.opacity=Math.max(0,a.flee/1.2);if(a.flee<=0){a.el.remove();actors.delete(id);continue;}}
- else{a.x+=a.dir*elapsed*.012;if(a.x<min){a.x=min;a.dir=1;}if(a.x>max){a.x=max;a.dir=-1;}}
- a.el.style.width=w+'px';a.el.style.height=w*165/264+'px';a.el.style.left=a.x*panel-w/2+'px';a.el.style.top=a.y*h-w*165/264+'px';a.el.style.zIndex=Math.floor(a.y*100);if(a.dir)a.el.style.transform=`scaleX(${a.dir>0?1:-1})`;a.el.classList.toggle('idle',!moving);a.phase+=elapsed*(a.flee?16:5);
- animateInsectLegs(a.el,a.phase,moving,settings.reduceMotion);
- if(a.el.querySelector('[data-body]'))animateAnimal(a.el,a.phase,moving,a.dir,now/1000,settings.reduceMotion);
- }}raf=requestAnimationFrame(frame);}
+ const elapsed=Math.min(.05,dt),h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
+ for(const [id,a] of actors){
+  const p=a.profile,w=p.size*scale,spriteH=w*165/264;
+  a.age+=elapsed;a.target-=elapsed;
+  if(a.target<=0&&!a.flee){a.dir=p.motion==='settled'?0:Math.random()<(p.air?.15:.30)?0:Math.random()<.5?-1:1;a.target=2.5+Math.random()*5.5;}
+  if(a.flee){a.flee-=elapsed;if(a.flee<=0){a.el.remove();actors.delete(id);continue;}}
+  const desired=(a.flee?(a.dir||a.faceTarget):a.dir)*p.speed*scale*(a.flee?4:1);
+  a.velocity+=(desired-a.velocity)*(1-Math.exp(-elapsed*(a.flee?8:4)));
+  const activity=clamp(Math.abs(a.velocity)/Math.max(1,p.speed*scale),0,1);
+  if(Math.abs(a.velocity)>.8)a.faceTarget=Math.sign(a.velocity);
+  a.facing+=(a.faceTarget-a.facing)*(1-Math.exp(-elapsed*13));
+  a.phase+=elapsed*Math.PI*2*p.cadence*(p.air||p.motion==='pulse'?1:activity)*(a.flee?1.8:1);
+  const hop=p.motion==='hop'?.35+Math.max(0,Math.sin(a.phase))*1.3:1;
+  a.x+=a.velocity*hop*elapsed/panel;
+  if(p.water)a.baseY=clamp(a.baseY,Math.max(.72,.59+spriteH/h),.96);
+  a.y=a.baseY+(p.air&&!settings.reduceMotion?Math.sin(now/1000*1.2+a.phase*.16)*.008+Math.sin(now/1000*.6+a.phase)*.004:0);
+  const {min,max}=boundsFor(a,a.y,w,spriteH);
+  if(a.x<min){a.x=min;a.dir=1;a.velocity=Math.max(0,a.velocity);}
+  if(a.x>max){a.x=max;a.dir=-1;a.velocity=Math.min(0,a.velocity);}
+  const left=a.x*panel-w/2,top=a.y*h-spriteH;
+  a.el.style.width=w+'px';a.el.style.height=spriteH+'px';
+  a.el.style.left='0px';a.el.style.top='0px';
+  a.el.style.transform=`translate3d(${left.toFixed(2)}px,${top.toFixed(2)}px,0) scaleX(${(settings.reduceMotion?a.faceTarget:a.facing).toFixed(4)})`;
+  a.el.style.zIndex=p.air?'230':String(Math.floor(a.y*100));
+  a.el.style.opacity=a.flee?String(clamp(a.flee/1.2,0,1)):String(Math.min(1,a.age/.45)*(p.water?.9:1));
+  a.el.classList.toggle('idle',activity<.02&&!p.air);
+  if(left+w>=viewport.scrollLeft-100&&left<=viewport.scrollLeft+viewport.clientWidth+100){
+   animateCritter(a.el,{phase:a.phase,time:now/1000+a.timeOffset,activity,profile:p,reduced:settings.reduceMotion});
+  }
+ }
+ raf=requestAnimationFrame(frame);}
 raf=requestAnimationFrame(frame);
