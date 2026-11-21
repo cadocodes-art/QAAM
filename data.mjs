@@ -1,10 +1,10 @@
 // Game rarity is a design choice, not a current wildlife census.
 export const TIERS = [
- ['Ultra-Common',55,1,.75,1,'#85966b'],['Common',40,3,.5,.94,'#6da77c'],
- ['Uncommon',30,6,5/12,.87,'#62a6b8'],['Rare',25,12,1/6,.79,'#598cdb'],
- ['Epic',20,24,1/15,.70,'#aa78d0'],['Legendary',15,48,1/40,.61,'#daa44a'],
- ['Mythic',12,84,1/100,.52,'#dc7696'],['Godly',10,120,1/300,.43,'#63c6bd'],
- ['',3,180,1/2000,.34,'#eee7cc']
+ ['Ultra-Common',55,5,1/2,1,'#85966b'],['Common',40,15,1/5,.94,'#6da77c'],
+ ['Uncommon',30,30,1/12,.87,'#62a6b8'],['Rare',25,60,1/30,.79,'#598cdb'],
+ ['Epic',20,120,1/75,.70,'#aa78d0'],['Legendary',15,240,1/200,.61,'#daa44a'],
+ ['Mythic',12,420,1/500,.52,'#dc7696'],['Godly',10,600,1/1500,.43,'#63c6bd'],
+ ['',3,900,1/10000,.34,'#eee7cc']
 ].map(([name,count,seconds,chance,quiet,color],id)=>({id,name,count,seconds,chance,quiet,color}));
 // name | illustration family | coat | habitat (w = water)
 const groups = [

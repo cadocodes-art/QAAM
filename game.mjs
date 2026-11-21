@@ -3,6 +3,7 @@ import {advance,makeState,clamp,volumeLevel} from './core.mjs';
 import {PANORAMA,SCENE_HEIGHT,SCENE_RATIO,habitatBounds,waterClip} from './panorama.mjs';
 import {art} from './art.mjs';
 import {animateAnimal} from './original-animals.mjs';
+import {animateInsectLegs} from './insect-motion.mjs';
 const $=id=>document.getElementById(id),world=$('world'),viewport=$('viewport');
 const defaults={showSound:true,showCount:true,showTimer:true,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,sensitivity:50,scrollSpeed:1};
 let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem('quiet-mouse-v11-settings')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]===typeof defaults[k])settings[k]=saved[k];}catch{}
@@ -76,7 +77,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&(mode!=='o
 function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  if(mode==='live'&&analyser){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
  if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;$('calibrationStatus').textContent='Calibrated. Sensitivity adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
- else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();announce(result.fled.length?'A sound startled your visitors. Let the quiet settle again.':result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
+ else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
  if(now-lastRender>32){const elapsed=(now-lastRender)/1000;lastRender=now;const panel=world.clientWidth/3,h=world.clientHeight;
  for(const[id,a]of actors){a.target-=elapsed;if(a.target<=0){a.dir=Math.random()<.28?0:Math.random()<.5?-1:1;a.target=2+Math.random()*5;}const moving=a.flee>0||a.dir!==0;
@@ -86,6 +87,7 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  if(a.flee){a.flee-=elapsed;a.x=clamp(a.x+(a.dir||1)*elapsed*.13,min,max);a.el.style.opacity=Math.max(0,a.flee/1.2);if(a.flee<=0){a.el.remove();actors.delete(id);continue;}}
  else{a.x+=a.dir*elapsed*.012;if(a.x<min){a.x=min;a.dir=1;}if(a.x>max){a.x=max;a.dir=-1;}}
  a.el.style.width=w+'px';a.el.style.height=w*165/264+'px';a.el.style.left=a.x*panel-w/2+'px';a.el.style.top=a.y*h-w*165/264+'px';a.el.style.zIndex=Math.floor(a.y*100);if(a.dir)a.el.style.transform=`scaleX(${a.dir>0?1:-1})`;a.el.classList.toggle('idle',!moving);a.phase+=elapsed*(a.flee?16:5);
+ animateInsectLegs(a.el,a.phase,moving,settings.reduceMotion);
  if(a.el.querySelector('[data-body]'))animateAnimal(a.el,a.phase,moving,a.dir,now/1000,settings.reduceMotion);
  }}raf=requestAnimationFrame(frame);}
 raf=requestAnimationFrame(frame);

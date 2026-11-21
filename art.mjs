@@ -1,4 +1,5 @@
 import {animalSVG} from './original-animals.mjs';
+import {insectLegs} from './insect-motion.mjs';
 const e=(x,y,rx,ry,c)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${c}"/>`;
 const p=(d,c,extra='')=>`<path d="${d}" fill="${c}" ${extra}/>`;
 const line=(d,c,w=4)=>p(d,'none',`stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
@@ -22,7 +23,7 @@ export function art(s){
  if(['insect','bee','beetle','spider','butterfly','worm','snail'].includes(k)){
  if(k==='worm'){for(let i=0;i<12;i++)a+=e(62+i*11,104+Math.sin(i*.6)*6,9,8,c);return wrap(a+eye(184,98));}
  if(k==='snail')return wrap(e(135,117,57,8,c)+e(125,93,28,26,'#bda37a')+p('M125 110Q97 102 111 82Q132 67 142 87Q148 103 128 102Q118 100 125 91','none','stroke="#806644" stroke-width="3"')+line('M174 112l3-27M187 113l8-25',c,4)+eye(178,84)+eye(195,87));
- for(let i=0;i<(k==='spider'?8:6);i++){let x=108+(i%4)*13;a+=`<g class="leg l${i%4}">${line(`M${x} 96l${i%2?15:-15} 16l${i%2?15:-15} 10`,c,3)}</g>`;}
+ a+=insectLegs(c,k==='spider'?4:3);
  if(k==='butterfly')a+=e(106,70,29,33,c)+e(153,70,29,33,c)+e(108,111,22,20,c)+e(152,111,22,20,c);
  if(k==='bee'||k==='insect')a+=e(115,73,24,12,'#e6e8d5')+e(143,73,24,12,'#d9e5de');
  a+=e(127,94,30,18,k==='bee'?'#d8b953':c)+e(164,87,14,13,c)+eye(170,84)+line('M159 75l-3-18M168 75l12-15',c,2);if(k==='bee')a+=line('M115 80v28M130 77v34M145 82v22','#4a4234',7);return wrap(a);}
