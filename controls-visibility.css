@@ -1,0 +1,6 @@
+.header-actions,.autoscroll,footer,#enableMotion{transition:opacity .18s ease,visibility 0s}
+.text-move{transition:opacity .18s ease,visibility 0s}
+body.controls-asleep :is(.header-actions,.autoscroll,footer,#enableMotion,.text-move){opacity:0!important;visibility:hidden;pointer-events:none!important;transition:opacity .18s ease,visibility 0s .18s}
+body.controls-asleep .text-box:not(.dragging){outline:none}
+body.reduced :is(.header-actions,.autoscroll,footer,#enableMotion,.text-move){transition:none!important}
+@media(prefers-reduced-motion:reduce){.header-actions,.autoscroll,footer,#enableMotion,.text-move{transition:none!important}}

@@ -1,3 +1,4 @@
+import {initControlsVisibility} from './controls-visibility.mjs';
 import {initTextBoxes} from './text-boxes.mjs';
 import {TIERS,SPECIES} from './data.mjs';
 import {advance,makeState,clamp,volumeLevel} from './core.mjs';
@@ -155,3 +156,5 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  }}
  raf=requestAnimationFrame(frame);}
 raf=requestAnimationFrame(frame);
+
+initControlsVisibility();

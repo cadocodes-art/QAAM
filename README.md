@@ -1,7 +1,24 @@
-# Quiet as a Mouse - V1.4
+# Quiet as a Mouse - V1.4 Auto-Hide
 
 V1.4 adds classroom text boxes. The game title, top-left badge, animal preview
 page, and ZIP filename all show **V1.4**.
+
+## Controls disappear after two seconds
+
+After entering the meadow, buttons, Autoscroll controls and text-box move handles
+fade away after two seconds without input. Move the mouse to bring them back.
+On an iPad or phone, tap once to reveal the controls, then tap the button you want.
+Keyboard input and wheel scrolling also reveal them.
+
+Text messages, the sound bar, visitor count and quiet timer remain visible.
+Animals, the microphone and Autoscroll continue while the controls are hidden.
+The welcome screen and open menus/editors stay visible. Controls also stay
+available during a held drag or while a keyboard user has a control focused.
+Hidden controls cannot be clicked or reached accidentally. Reduced motion
+removes the fade animation.
+
+The badge says **V1.4 · AUTO-HIDE** to distinguish this build from the earlier
+V1.4 text-box release.
 
 ## Text boxes in V1.4
 
@@ -127,7 +144,7 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.4.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.4-AutoHide.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs`/`.css` file, both PNGs, and the `fonts` folder.
@@ -145,6 +162,7 @@ folder, not loose files. This ZIP contains normal source files and assets.
 ## File guide
 
 - `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
+- `controls-visibility.mjs`, `controls-visibility.css`: two-second control hiding and wake interactions.
 - `text-boxes.mjs`, `text-model.mjs`, `text-boxes.css`: text tools, limits, placement and styling.
 - `fonts/`: Roboto and Open Sans font files and their licenses.
 - `data.mjs`, `core.mjs`: roster, V1.3.2 rarity values, and existing scare rules.
@@ -178,4 +196,6 @@ V1.4 was checked in headless Chrome with desktop, tablet and phone viewport
 sizes, including mouse/keyboard dragging and emulated touch input. Text checks
 cover all 15 choices, bundled font loading, the 10-box limit, editing/removal,
 reload persistence, safe plain text, scrolling, and unavailable/corrupt storage.
+Auto-hide checks cover the two-second timeout, mouse/touch/keyboard wake-up,
+open menus, held dragging and continued Autoscroll.
 Physical iPad/Android devices and real microphone hardware were not tested.
