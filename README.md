@@ -1,7 +1,43 @@
-# Quiet as a Mouse - V1.3.3
+# Quiet as a Mouse - V1.4
 
-V1.3.3 adds offscreen arrivals and Autoscroll. The game title, top-left badge,
-animal preview page, and ZIP filename all show **V1.3.3**.
+V1.4 adds classroom text boxes. The game title, top-left badge, animal preview
+page, and ZIP filename all show **V1.4**.
+
+## Text boxes in V1.4
+
+1. Click or tap the circular **Tt / TEXT** button beneath Settings.
+2. Choose **+ Add text box**. You can keep up to **10** boxes on screen.
+3. Write your message, then choose its font, size, color and light background.
+4. Close the panel. Drag a box by its move handle; tap its text to edit again.
+5. Choose **Remove this box** to remove the selected box and free a slot.
+
+Text stays fixed on the screen while you scroll the meadow or use Autoscroll.
+Autoscroll pauses while the text panel is open or a box is being dragged,
+and resumes after the usual three-second interaction pause. The microphone
+and animal simulation continue while editing.
+
+Keyboard: Tab to a box's move handle and use the arrow keys (Shift for larger
+steps). The editor also has horizontal and vertical position sliders. Boxes
+stay inside the screen after resizing or rotating your device. Long messages
+wrap and can be scrolled inside their box. Each box supports 1,000 characters.
+
+Messages, positions and styling save automatically in this browser on this
+website. They remain after reloading and after updating the game at the same
+address. They do not sync between devices, browsers, or different domains;
+clearing site data removes them. If saving is unavailable, the editor says so
+and the text still works for the current visit. No text is uploaded.
+
+### The 15 font choices
+
+Arial, Helvetica, Times New Roman, Georgia, Verdana, Tahoma, Trebuchet MS,
+Calibri, Cambria, Garamond, Courier New, Impact, Comic Sans MS, Roboto,
+and Open Sans.
+
+Roboto and Open Sans are included in the fonts/ folder and served by your
+own website; no request to Google Fonts is needed while playing. Their SIL
+Open Font License files are included. The other 13 use the device's installed
+fonts, with similar fallbacks if missing. A font choice remains saved even on
+a device that needs its fallback. No proprietary system fonts are redistributed.
 
 ## New in V1.3.3
 
@@ -91,21 +127,26 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.3.3.zip** and choose Extract All.
-2. Open the extracted folder and select all files inside it.
+1. Download **Quiet-as-a-Mouse-V1.4.zip** and choose Extract All.
+2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
-4. Replace matching files and include every new `.mjs` file and both PNGs.
+4. Replace matching files and include every new `.mjs`/`.css` file, both PNGs, and the `fonts` folder.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.3.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.4.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is
 needed. Keep your existing working Cloudflare settings.
 
+Keep the `fonts` folder intact beside `index.html`. Upload its contents as a
+folder, not loose files. This ZIP contains normal source files and assets.
+
 ## File guide
 
 - `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
+- `text-boxes.mjs`, `text-model.mjs`, `text-boxes.css`: text tools, limits, placement and styling.
+- `fonts/`: Roboto and Open Sans font files and their licenses.
 - `data.mjs`, `core.mjs`: roster, V1.3.2 rarity values, and existing scare rules.
 - `travel.mjs`: offscreen entrance paths and back-and-forth Autoscroll.
 - `art.mjs`: illustration selection.
@@ -133,5 +174,8 @@ roster coverage, SVG validity, joint poses, movement profiles, shoreline bounds,
 rarity timers/chances, and the one-or-two-animal scare rule. V1.3.3 checks also
 cover offscreen starts, continuous habitat-safe entrance paths, Autoscroll speed
 and both-end reversal, saved controls, and manual-input/dialog/tab pauses.
-Live browser,
-physical microphone, and touch-device testing were not available in this run.
+V1.4 was checked in headless Chrome with desktop, tablet and phone viewport
+sizes, including mouse/keyboard dragging and emulated touch input. Text checks
+cover all 15 choices, bundled font loading, the 10-box limit, editing/removal,
+reload persistence, safe plain text, scrolling, and unavailable/corrupt storage.
+Physical iPad/Android devices and real microphone hardware were not tested.

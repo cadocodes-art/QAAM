@@ -1,3 +1,4 @@
+import {initTextBoxes} from './text-boxes.mjs';
 import {TIERS,SPECIES} from './data.mjs';
 import {advance,makeState,clamp,volumeLevel} from './core.mjs';
 import {PANORAMA,SCENE_HEIGHT,SCENE_RATIO,habitatBounds,waterClip} from './panorama.mjs';
@@ -13,6 +14,7 @@ let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=
 const autoCamera={direction:1,velocity:0,pause:0,position:null};let manualPause=0,manualHold=false;
 const threshold=()=>clamp(baseline+18-(settings.sensitivity-50)*.4,10,80);
 const announce=text=>{$('message').textContent=text;};
+const textBoxes=initTextBoxes({announce,onInteract:()=>pauseAutoscroll()});
 function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=k==='autoScrollSpeed'?settings[k]+'×':settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);$('enableMotion').hidden=!settings.reduceMotion;$('motionHelp').textContent=settings.reduceMotion?'Animal parts are paused. Turn Reduce motion off to animate legs, tails, and wings.':'Legs, tails, and wings animate in the meadow and on discovered collection cards.';try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
 for(const k of Object.keys(defaults))$(k).addEventListener('input',()=>{settings[k]=$(k).type==='checkbox'?$(k).checked:Number($(k).value);if(k==='autoScroll'){autoCamera.velocity=0;autoCamera.position=null;autoCamera.pause=0;manualPause=0;}applySettings();});applySettings();
 const cards=new Map(),collectionItems=new WeakMap();
@@ -104,7 +106,7 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
  const elapsed=Math.min(.05,dt),h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
  manualPause=Math.max(0,manualPause-elapsed);
- if(settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open){
+ if(settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!textBoxes.isEditing()){
   autoCamera.position=advanceAutoscroll(autoCamera,autoCamera.position??viewport.scrollLeft,elapsed,Math.max(0,ww-viewport.clientWidth),60*settings.autoScrollSpeed);
   viewport.scrollLeft=autoCamera.position;updateLocation();
  }else{autoCamera.velocity=0;autoCamera.position=null;}

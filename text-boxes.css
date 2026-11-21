@@ -1,0 +1,27 @@
+@font-face{font-family:'QAAM Roboto';src:url('./fonts/Roboto.ttf') format('truetype');font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:'QAAM Open Sans';src:url('./fonts/OpenSans.ttf') format('truetype');font-style:normal;font-weight:300 800;font-display:swap}
+.header-actions{display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:auto}
+#textButton{flex-direction:column;font:20px Arial,sans-serif;gap:0}#textButton small{font-size:10px;letter-spacing:.8px}
+#textLayer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.text-box{position:absolute;width:min(360px,calc(100% - 24px));max-width:calc(100% - 24px);border-radius:14px;pointer-events:auto}
+.text-content{display:block;padding:12px 18px;border-radius:14px;width:100%;max-height:55dvh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center;line-height:1.25;background:transparent;text-shadow:0 1px 2px #fff,0 0 5px #fff9;cursor:pointer;user-select:none;-webkit-user-select:none}
+.text-box.with-backing .text-content{background:#fffdf1ed;box-shadow:0 3px 16px #213d2d15;text-shadow:none}
+.text-content{touch-action:manipulation}
+.text-box:hover,.text-box:focus-within,.text-box.selected{outline:2px dashed #46694b;outline-offset:2px}
+.text-move{position:absolute;top:0;left:0;transform:translateY(-22px);height:36px;width:44px;background:#f8f5e9;border:1px solid #a6b2a0;border-radius:10px 10px 0 0;font:24px Arial,sans-serif;opacity:0;touch-action:none;cursor:grab;z-index:1}
+.text-box:hover .text-move,.text-box:focus-within .text-move,.text-box.dragging .text-move{opacity:1}.text-box.dragging .text-move{cursor:grabbing}.text-box.dragging{z-index:2}
+.text-panel{width:min(420px,100%);font:16px Arial,sans-serif;padding:24px}.text-panel h2{font-family:Georgia,serif}.text-panel .close{min-width:40px;min-height:40px}
+.text-panel .muted{font-size:14px}.text-panel .eyebrow{font-size:11px}.text-panel .primary{margin-top:12px;font-size:16px;justify-content:center;min-height:44px}
+.text-panel button:disabled{cursor:default}.text-panel p{line-height:1.5}.text-panel textarea,.text-panel select,.text-panel input{font:16px Arial,sans-serif}
+.text-panel textarea,.text-panel select{width:100%;border:1px solid #c6d1c1;border-radius:9px;background:#fffef8;color:#263e30;padding:10px}
+.text-panel textarea{min-height:108px;resize:vertical;max-height:35dvh;line-height:1.45}.text-panel select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23263e30' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;min-height:44px}
+.text-panel :is(button,input,select,textarea):focus-visible{outline:3px solid #b37730;outline-offset:3px}
+.text-label{display:flex;justify-content:space-between;align-items:center;margin:18px 0 8px;font-size:14px;gap:8px}.text-label output{font-size:13px;color:#5b6c5b}.text-label input[type=color]{width:60px;height:40px;padding:3px;border:1px solid #c6d1c1;background:#fffef8;border-radius:8px}
+.text-panel .setting{font-size:14px}.text-panel input[type=range]{min-height:36px}.text-panel input[type=checkbox]{width:22px;height:22px}
+.text-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.text-choice{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:44px;padding:10px;text-align:left;border:1px solid #d1d9ca;border-radius:10px;background:#fffdf5;font:14px Arial,sans-serif}
+.text-choice[aria-pressed=true]{border-color:#3d6746;background:#e1ecd8}.text-empty{padding:16px 0;font-size:15px;color:#677463}.text-remove{margin-top:18px;border:1px solid #b77966;background:#fff9f2;color:#8b4431;padding:12px 16px;border-radius:12px;font:14px Arial,sans-serif;min-height:44px}
+#textLimit{color:#8b4431;font-size:14px}#textSaveStatus{margin-top:24px}#textBoxCount{white-space:nowrap}
+@media(hover:none){.text-move{opacity:1}}
+@media(max-width:700px){.text-panel{padding:20px}.header-actions{gap:8px}.text-box{width:min(320px,calc(100% - 24px))}}
+@media(max-height:590px){.header-actions{gap:6px}#textButton{height:42px;width:42px}.text-content{max-height:48dvh}}
+@media(max-width:380px){header .brand{max-width:calc(100% - 58px)}header h1 span{margin-left:4px}}
