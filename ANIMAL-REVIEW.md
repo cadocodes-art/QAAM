@@ -1,4 +1,6 @@
-# Quiet as a Mouse V1.3 - Animal design review
+# Quiet as a Mouse V1.3.1 - Animal design review
+
+V1.3.1 preserves the V1.3 designs and adds clearer articulated motion.
 
 All 210 roster animals have individual design notes below. These notes describe
 the identifying features used for the cartoon illustrations and link to the

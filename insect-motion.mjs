@@ -2,14 +2,24 @@
 const TAU=Math.PI*2;
 export function insectLegPose({restX,restY,upper,lower,bend,offset},phase,moving,reduced=false){
  const cycle=phase+offset;
- const step=moving&&!reduced?Math.cos(cycle)*4:0;
- const lift=moving&&!reduced?Math.max(0,Math.sin(cycle))*3:0;
- const footX=restX+step,footY=restY-lift;
- const distance=Math.hypot(footX,footY);
+ const active=moving&&!reduced;
+ const step=active?Math.cos(cycle)*8:0;
+ // Squaring the swing half-cycle softens touchdown and liftoff without a snap.
+ const lift=active?Math.max(0,Math.sin(cycle))**2*6:0;
+ let footX=restX+step,footY=restY-lift;
+ const targetDistance=Math.hypot(footX,footY);
+ const restDistance=Math.hypot(restX,restY);
+ const unitX=targetDistance>1e-9?footX/targetDistance:restDistance>1e-9?restX/restDistance:0;
+ const unitY=targetDistance>1e-9?footY/targetDistance:restDistance>1e-9?restY/restDistance:1;
+ // Keep the requested foot inside the two-bone reachable annulus. This also
+ // handles a target at the hip without dividing by zero or stretching a knee.
+ const epsilon=Math.min(upper,lower)*1e-6;
+ const distance=Math.max(Math.abs(upper-lower)+epsilon,Math.min(upper+lower-epsilon,targetDistance));
+ footX=unitX*distance;footY=unitY*distance;
  const along=(upper*upper-lower*lower+distance*distance)/(2*distance);
  const out=Math.sqrt(Math.max(0,upper*upper-along*along));
- return {footX,footY,kneeX:along*footX/distance+bend*out*footY/distance,
-  kneeY:along*footY/distance-bend*out*footX/distance};
+ return {footX,footY,kneeX:along*unitX+bend*out*unitY,
+  kneeY:along*unitY-bend*out*unitX};
 }
 export function insectLegSpecs(pairs=3,ant=false){
  const specs=[];
@@ -25,7 +35,7 @@ export function insectLegSpecs(pairs=3,ant=false){
 const legPath=pose=>`M0 0 L${pose.kneeX.toFixed(3)} ${pose.kneeY.toFixed(3)} L${pose.footX.toFixed(3)} ${pose.footY.toFixed(3)}`;
 export function insectLegs(color,pairs=3,ant=false){
  return insectLegSpecs(pairs,ant).map(s=>
-  `<g data-insect-leg data-rest-x="${s.restX}" data-rest-y="${s.restY}" data-upper="${s.upper}" data-lower="${s.lower}" data-bend="${s.bend}" data-offset="${s.offset}" transform="translate(${s.x} ${s.y})" opacity="${s.side?1:.7}"><path d="${legPath(insectLegPose(s,0,false))}" fill="none" stroke="${color}" stroke-width="${ant?4:3}" stroke-linecap="round" stroke-linejoin="round"/></g>`
+  `<g data-insect-leg="" data-rest-x="${s.restX}" data-rest-y="${s.restY}" data-upper="${s.upper}" data-lower="${s.lower}" data-bend="${s.bend}" data-offset="${s.offset}" transform="translate(${s.x} ${s.y})" opacity="${s.side?1:.7}"><path d="${legPath(insectLegPose(s,0,false))}" fill="none" stroke="${color}" stroke-width="${ant?4:3}" stroke-linecap="round" stroke-linejoin="round"/></g>`
  ).join('');
 }
 const rigs=new WeakMap();

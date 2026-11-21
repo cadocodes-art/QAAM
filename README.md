@@ -1,11 +1,21 @@
-# Quiet as a Mouse - V1.3
+# Quiet as a Mouse - V1.3.1
 
-V1.3 focuses on animal appearance and movement. The game title, top-left badge,
-animal preview page, and ZIP filename all show **V1.3**.
+V1.3.1 makes legs, tails, wings, flippers, and fins visibly animate. The game title, top-left badge,
+animal preview page, and ZIP filename all show **V1.3.1**.
 
-## Animal update
+## Animation update
 
-All 210 roster entries have been reviewed for identifying features. The new
+- Clearer anchored leg strides, insect knee bends, tail sways and wingbeats.
+- Missing tail joints and fixed limb details now move with their body parts.
+- Flying animals keep their legs tucked; ground birds occasionally stretch wings.
+- Visible discovered animals also animate in the collection sidebar.
+- If Reduce motion is enabled, use the on-screen **Animal animation is off. Enable**
+  button, or turn Reduce motion off in Settings. Your accessibility preference is
+  preserved until you choose to enable the animation.
+
+## Animal designs
+
+The V1.3 designs are preserved. All 210 roster entries have been reviewed for identifying features. The new
 illustrations keep the soft, flat cartoon style while using more appropriate
 body proportions, faces, feet, tails, wings, and markings.
 
@@ -38,13 +48,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.3.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.3.1.zip** and choose Extract All.
 2. Open the extracted folder and select all files inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs` file and both PNGs.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.3.1.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is

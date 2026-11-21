@@ -1,4 +1,4 @@
-// V1.3: aquatic and ectotherm silhouettes reviewed species by species.
+// V1.3.1: reviewed aquatic silhouettes with locally anchored appendages.
 const P=(d,c,extra='')=>`<path d="${d}" fill="${c}" ${extra}/>`;
 const E=(x,y,rx,ry,c,extra='')=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${c}" ${extra}/>`;
 const L=(d,c,w=2)=>P(d,'none',`stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`);
@@ -51,11 +51,13 @@ function fish(s){
  return out;
 }
 function seadragon(){
- let out=J('tail',117,102,L('M0 0Q-27 29-45 15Q-11 43-4 15','#a7aa67',10),0,5);
+ const leaf=(i,x,y,dx,dy)=>J('fin',x,y,L(`M0 0L${dx*.4} ${dy*.4}`,'#84975e',2)+P(`M${dx*.25} ${dy*.25}Q${dx-13} ${dy*.5} ${dx} ${dy}Q${dx+11} ${dy*.55} ${dx*.25} ${dy*.25}Z`,i%2?'#b6ba70':'#90a467'),i*.8,6);
+ // Tail leaves inherit the tail transform before their own gentle leaf sway.
+ let out=J('tail',117,102,L('M0 0Q-27 29-45 15Q-11 43-4 15','#a7aa67',10)+leaf(6,-25,14,-14,25)+leaf(7,-41,15,-18,-2),0,5);
  out+=P('M105 100Q104 71 132 65L145 38Q159 29 172 46L167 61L209 65L213 73L165 73Q158 75 157 96Q133 117 105 100Z','#b4b879');
  out+=L('M115 96Q118 75 143 70L155 46','#d5cf8b',3);
- const leaves=[[108,92,-20,-9],[118,74,-26,-22],[139,63,-12,-29],[152,44,4,-28],[158,91,21,21],[132,105,2,30],[92,116,-14,25],[76,117,-18,-2]];
- for(let i=0;i<leaves.length;i++){const[x,y,dx,dy]=leaves[i];out+=J('fin',x,y,L(`M0 0L${dx*.4} ${dy*.4}`,'#84975e',2)+P(`M${dx*.25} ${dy*.25}Q${dx-13} ${dy*.5} ${dx} ${dy}Q${dx+11} ${dy*.55} ${dx*.25} ${dy*.25}Z`,i%2?'#b6ba70':'#90a467'),i*.8,6);}
+ const leaves=[[108,92,-20,-9],[118,74,-26,-22],[139,63,-12,-29],[152,44,4,-28],[158,91,21,21],[132,105,2,30]];
+ for(let i=0;i<leaves.length;i++)out+=leaf(i,...leaves[i]);
  out+=eye(164,52,2.8)+L('M205 69h8','#7c8756',1.3);
  for(let i=0;i<5;i++)out+=L(`M${113+i*8} ${89-i*4}l6 7`,'#858d5b',1.2);
  return out;
@@ -103,8 +105,7 @@ function cetacean(s){
  if(n==='Common Dolphin')out+=P('M192 86Q169 85 147 99L99 87Q113 112 147 111L179 101Z','#d9c687');
  if(n==='Orca')out+=E(198,81,15,7,'#f5f0db')+P('M116 78Q99 64 90 84L105 88Z','#a6b6b4')+P('M162 106Q180 94 186 105L181 117L151 118Z','#f3f0de');
  const flipper= n==='Humpback Whale'?'M0 0Q12 7 44 44Q34 53 21 42L-12 2Z':n==='Ganges River Dolphin'?'M0 0Q31 10 31 30Q12 38-14 2Z':'M0 0Q15 11 27 27Q14 32-13 4Z';
- out+=J('flipper',167,104,P(flipper,n==='Humpback Whale'?'#dfe6d8':c),1.1,8);
- if(n==='Minke Whale')out+=J('flipper',167,104,P('M5 5L16 13L10 20L0 10Z','#f4f0db'),1.1,8);
+ out+=J('flipper',167,104,P(flipper,n==='Humpback Whale'?'#dfe6d8':c)+(n==='Minke Whale'?P('M5 5L16 13L10 20L0 10Z','#f4f0db'):''),1.1,8);
  if(n==='Humpback Whale'){
   out+=spots([[212,77],[226,79],[237,86],[217,97],[229,96]],'#8da6aa',2.4);
   out+=L('M185 108Q210 112 232 99M182 112Q210 115 230 104','#94b0b3',1.4);
@@ -122,7 +123,7 @@ function seal(s){
  const[c,light]=palette[n];let out='';
  // Hind feet are overlapping webbed paddles, not the two lobes of a fish tail.
  out+=J('flipper',79,102,P('M5-5Q-13-8-24-1Q-34 6-41 16Q-43 22-37 23Q-40 29-34 29Q-32 35-27 31Q-20 34-16 28Q-3 17 8 4Z',c)+L('M-29 23Q-22 14-10 8M-35 21Q-27 11-16 6M-23 28Q-17 19-4 12',light,1.3),Math.PI,7);
- out+=P('M77 102Q59 97 54 105Q62 112 79 112Z',c);
+ out+=J('tail',77,107,P('M0-5Q-18-10-23-2Q-15 5 2 5Z',c),0,5);
  out+=J('flipper',82,111,P('M3-7Q-10-3-20 7Q-30 16-34 28Q-35 34-29 34Q-28 41-23 38Q-19 44-14 37Q-8 39-5 32Q1 23 12 7Z',c)+L('M-27 29Q-19 16-8 11M-21 34Q-13 22-2 15M-14 33Q-7 26 2 22',light,1.4),0,7);
  out+=P(`M69 102Q92 76 135 81Q166 83 179 ${ear?66:82}Q202 ${ear?47:62} 224 80L234 96Q232 112 209 113Q178 128 126 122Q86 120 69 102Z`,c);
  out+=P('M85 110Q139 124 196 106Q215 99 229 104Q212 126 151 125Q110 123 85 110Z',light);
@@ -177,7 +178,7 @@ function turtle(s){
  let out='';
  const flipper=(x,y,phase,near)=>J(sea?'flipper':'leg',x,y,sea?P(near?'M0 0Q18 14 43 17Q24 38 5 28L-8 4Z':'M0 0Q-13-22-25-24Q-24-3-5 7Z',c):P('M0 0L-3 22L9 25L15 20L9 0Z',c)+L('M3 23v4M8 23v4M13 21v4','#dddebd',1.2),phase,sea?15:12);
  out+=flipper(96,99,Math.PI,false)+flipper(165,99,0,false);
- out+=P('M86 110L68 119L89 119Z',c)+E(192,103,26,17,c)+eye(205,99,3);
+ out+=J('tail',88,115,P('M-2-5L-20 4L1 4Z',c),0,5)+E(192,103,26,17,c)+eye(205,99,3);
  if(!sea)out+=P('M187 98L198 93L200 99L188 104Z','#b75243')+L('M196 110L211 106M181 109L189 107','#d5d496',2);
  out+=E(130,99,53,36,sea?'#87935c':'#607a4b')+E(130,100,48,31,sea?'#a0a36a':'#8e9e5a');
  out+=P('M111 75L139 73L157 90L150 111L122 120L101 102Z',sea?'#8e915a':'#73864d');
@@ -191,13 +192,13 @@ function frog(s){
  out+=J('leg',173,111,P('M0 0L11 26L28 30L36 27L22 22L15-4Z',shadow)+toe(31,28,shadow),0,8);
  out+=E(130,111,toad?45:46,toad?29:25,c)+P('M143 93Q158 71 187 78L211 93Q221 106 208 119L170 123L145 114Z',c);
  out+=P('M157 109Q183 117 208 108L211 119Q190 134 162 120Z',toad?'#cebe91':'#d3d4a2');
- out+=J('leg',109,118,P('M0 0Q-24-15-36 4Q-46 13-30 20L7 27L30 25L37 20L9 17L-13 9L12 4Z',c)+L('M27 25l8 4m-5-6l11 1m-8-4l10-2',shadow,2),0,12);
+ out+=J('leg',109,118,P('M0 0Q-24-15-36 4Q-46 13-30 20L7 27L30 25L37 20L9 17L-13 9L12 4Z',c)+L('M27 25l8 4m-5-6l11 1m-8-4l10-2',shadow,2)+(!toad&&!bull?L('M-15-7L-1-15M-19 1L-4-6',shadow,3):''),0,12);
  out+=J('leg',171,113,P('M0 0L3 26L17 32L25 29L12 23L12-4Z',c)+toe(21,29,shadow),Math.PI,9);
  out+=E(183,82,9,11,c)+E(201,89,8,10,c)+E(184,81,6,6,toad?'#ce9e50':'#b6bd66')+eye(185,81,3.7);
  out+=L('M208 107Q196 114 181 108',shadow,1.4);
  if(toad){out+=E(164,90,12,8,'#b2a076');out+=spots([[104,95],[119,91],[138,97],[99,109],[125,105],[145,114],[114,120],[159,102]],'#7f754f',2.5);}
  else if(bull)out+=E(166,91,10,11,'#8a9a5d')+E(166,91,6,7,'#657a42')+L('M153 88Q159 104 171 106','#516e3c',2);
- else out+=P('M165 85L180 84L174 100L157 98Z','#667043')+L('M94 111L108 103M90 119L105 112',shadow,3);
+ else out+=P('M165 85L180 84L174 100L157 98Z','#667043');
  return out;
 }
 function lizard(s){

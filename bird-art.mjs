@@ -63,8 +63,8 @@ function song(p){
  if(p.patch==='starling')wing+=marks([[-8,-4],[-19,-9],[-31,-16],[-41,-22],[-25,0]],'#d9ccae',1.6,1.1);
  if(p.patch==='quelea'||p.patch==='sparrow'||p.patch==='finch')wing+=L('M-11-16L-28-25M-15-9L-34-20M-23-3L-44-13','#594e3e',2);
  a+=joint('wing',142,91,wing,29);
- // Feet are tucked underneath the belly in the flight pose.
- a+=L('M142 117l-9 5l9 2M155 117l-8 4l9 2',corvid?'#343b3b':'#8d7861',2.2);
+ // Tucked flight feet have independent anchors and only a tiny adjustment.
+ a+=joint('leg',142,117,L('M0 0l-9 5l9 2',corvid?'#343b3b':'#8d7861',2.2),2,Math.PI)+joint('leg',155,117,L('M0 0l-8 4l9 2',corvid?'#343b3b':'#8d7861',2.2),2);
  if(p.patch==='starling')a+=marks([[147,104],[155,107],[166,94],[162,64],[152,113]],'#e3d6bd',1.2,1.3);
  return a;
 }
@@ -88,7 +88,7 @@ function gull(p){
  if(p.patch==='herring')a+=E(221,80,3,2,'#ba6b58');
  a+=eye(189,72,p.patch==='laughing'?'#e9e5d8':'#c9b97c');
  const wing=P('M0 0Q-29-43-95-45L-77-27L-83-22L-61-9L-67-4Q-32 16 0 0Z',p.wing)+P('M-68-39L-95-45L-77-27L-83-22L-61-9L-63-24Z','#3a4650')+marks([[-77,-32],[-70,-23]],'#e7e8df',2.4,1.8);
- a+=joint('wing',144,91,wing,24)+L('M145 118l-8 6l14 1M161 116l-7 6l12 2',p.patch==='herring'?'#caa89f':'#935c57',2.6);
+ a+=joint('wing',144,91,wing,24)+joint('leg',145,118,L('M0 0l-8 6l14 1',p.patch==='herring'?'#caa89f':'#935c57',2.6),2,Math.PI)+joint('leg',161,116,L('M0 0l-7 6l12 2',p.patch==='herring'?'#caa89f':'#935c57',2.6),2);
  return a;
 }
 function falcon(p){
@@ -99,7 +99,7 @@ function falcon(p){
  a+=P('M163 80Q182 74 189 91L178 105L158 98Z','#e8d6b9')+P('M186 72L197 74L198 81L191 87L191 79L185 79Z','#4c514a')+E(186,74,5,4,'#c7a956');
  a+=L('M178 79L175 95','#3d4544',4)+(american?L('M162 78L158 92','#3d4544',4):'')+eye(180,73);
  let wing=P('M0 0Q-26-43-80-44L-58-20L-67-16L-46-3L-48 4Q-21 17 0 0Z',p.wing)+L('M-17-11L-28-22M-31-19L-42-29M-42-5L-51-13','#474e4c',2.5);
- a+=joint('wing',141,91,wing,28)+marks([[136,108],[145,113],[155,108],[146,121],[130,115]],'#776d59',1.4,2)+L('M143 122l-5 7l10-2M155 119l-5 8l10-2','#c5a450',2.7);
+ a+=joint('wing',141,91,wing,28)+marks([[136,108],[145,113],[155,108],[146,121],[130,115]],'#776d59',1.4,2)+joint('leg',143,122,L('M0 0l-5 7l10-2','#c5a450',2.7),2,Math.PI)+joint('leg',155,119,L('M0 0l-5 8l10-2','#c5a450',2.7),2);
  return a;
 }
 function waterfowl(p){
@@ -177,7 +177,7 @@ function ratite(p){
  if(emu){
   for(let i=0;i<14;i++){const x=87+i*5;a+=L(`M${x} ${69+(i%3)*5}l-6 24`,i%2?'#b19d78':'#635e50',2.6);}
   a+=L('M168 40L179 40','#789289',8)+joint('wing',148,75,P('M0 0L-12 16L3 22L9 11Z','#8b7c62'),2);
- }else a+=joint('wing',144,68,P('M0 0Q-31-11-42 16L-31 23L-25 19L-20 26L-12 23L-5 28Q8 17 11 9Z','#e6e0d0'),3)+P('M83 78Q67 66 58 77L63 87L55 90L74 98Z','#e5dfce');
+ }else a+=joint('wing',144,68,P('M0 0Q-31-11-42 16L-31 23L-25 19L-20 26L-12 23L-5 28Q8 17 11 9Z','#e6e0d0'),3)+joint('tail',83,78,P('M0 0Q-16-12-25-1L-20 9L-28 12L-9 20Z','#e5dfce'),4);
  a+=P('M194 18L211 24L194 28Z',emu?'#4b514c':'#ad947b')+eye(187,19);
  if(!emu)a+=L('M184 15l-2-3M189 15l1-3','#514e43',1.2);
  return a;
@@ -185,7 +185,7 @@ function ratite(p){
 function penguin(p){
  const king=p.patch==='king',puffin=p.patch==='puffin',y=king?84:93;
  let a=foot(123,132,12,puffin?'#cb8952':'#aa8a74',Math.PI,true,7)+foot(149,132,12,puffin?'#dc9b5b':'#b59a81',0,true,7);
- a+=P('M105 120L89 140L116 137Z','#3c494c')+E(135,y,king?29:33,king?59:48,'#3c4b51')+E(145,y+11,king?20:24,king?46:35,'#e9e6d6');
+ a+=joint('tail',105,120,P('M0 0L-16 20L11 17Z','#3c494c'),4)+E(135,y,king?29:33,king?59:48,'#3c4b51')+E(145,y+11,king?20:24,king?46:35,'#e9e6d6');
  a+=E(146,king?34:55,king?20:puffin?27:23,king?23:puffin?25:23,'#36464b');
  if(puffin){
   a+=P('M144 38Q172 32 173 61Q166 79 147 72L139 57Z','#e5e2d5')+P('M166 50L202 58L176 75L164 68Z','#d18c4e')+P('M184 55L202 58L187 68L182 67Z','#bd6549')+P('M166 50L176 53L174 71L164 68Z','#9daba6')+L('M181 55L179 68','#eee0ac',1.8)+eye(160,51,'#bc715a')+L('M157 56L158 64','#3a4546',1.5);

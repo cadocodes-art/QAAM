@@ -11,10 +11,12 @@ settings.sensitivity=clamp(settings.sensitivity,0,100);settings.scrollSpeed=clam
 let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=22,level=0,last=0,calibration=null,raf=0;
 const threshold=()=>clamp(baseline+18-(settings.sensitivity-50)*.4,10,80);
 const announce=text=>{$('message').textContent=text;};
-function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
+function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);$('enableMotion').hidden=!settings.reduceMotion;$('motionHelp').textContent=settings.reduceMotion?'Animal parts are paused. Turn Reduce motion off to animate legs, tails, and wings.':'Legs, tails, and wings animate in the meadow and on discovered collection cards.';try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
 for(const k of Object.keys(defaults))$(k).addEventListener('input',()=>{settings[k]=$(k).type==='checkbox'?$(k).checked:Number($(k).value);applySettings();});applySettings();
-const cards=new Map();
-for(const tier of TIERS){const section=document.createElement('section');const title=document.createElement('h3');title.className='tier-title';if(tier.id===8){const img=new Image();img.src='./face.png';img.alt='Rarest tier';title.append(img);}else title.textContent=tier.name;const n=document.createElement('span');n.className='tier-count';n.id='tier-count-'+tier.id;title.append(n);section.append(title);const grid=document.createElement('div');grid.className='cards';for(const s of SPECIES.filter(a=>a.tier===tier.id)){const card=document.createElement('div');card.className='card locked';card.setAttribute('aria-label','Undiscovered animal');card.innerHTML=art(s);const name=document.createElement('span');name.className='animal-name';card.append(name);grid.append(card);cards.set(s.id,{card,name});}section.append(grid);$('roster').append(section);}
+const cards=new Map(),collectionItems=new WeakMap();
+const collectionObserver=new IntersectionObserver(entries=>{for(const e of entries){const c=collectionItems.get(e.target);if(c)c.visible=e.isIntersecting;}},{root:$('collectionDialog'),rootMargin:'50px'});
+$('enableMotion').onclick=()=>{settings.reduceMotion=false;applySettings();};
+for(const tier of TIERS){const section=document.createElement('section');const title=document.createElement('h3');title.className='tier-title';if(tier.id===8){const img=new Image();img.src='./face.png';img.alt='Rarest tier';title.append(img);}else title.textContent=tier.name;const n=document.createElement('span');n.className='tier-count';n.id='tier-count-'+tier.id;title.append(n);section.append(title);const grid=document.createElement('div');grid.className='cards';for(const s of SPECIES.filter(a=>a.tier===tier.id)){const card=document.createElement('div');card.className='card locked';card.setAttribute('aria-label','Undiscovered animal');card.innerHTML=art(s);const name=document.createElement('span');name.className='animal-name';card.append(name);grid.append(card);const item={card,name,s,profile:visualProfile(s),phase:cards.size*.6,timeOffset:cards.size*.71,visible:false};cards.set(s.id,item);collectionItems.set(card,item);collectionObserver.observe(card);}section.append(grid);$('roster').append(section);}
 function updateRoster(){for(const s of SPECIES){const {card,name}=cards.get(s.id),found=state.present.has(s.id);card.classList.toggle('locked',!found);name.textContent=found?s.name:'';card.setAttribute('aria-label',found?s.name:'Undiscovered animal');}for(const t of TIERS)$('tier-count-'+t.id).textContent=SPECIES.filter(s=>s.tier===t.id&&state.present.has(s.id)).length+' / '+t.count;$('count').textContent=state.present.size;}
 updateRoster();
 function showDialog(id){$(id).showModal();}
@@ -113,5 +115,10 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
    animateCritter(a.el,{phase:a.phase,time:now/1000+a.timeOffset,activity,profile:p,reduced:settings.reduceMotion});
   }
  }
+ if($('collectionDialog').open){for(const c of cards.values()){
+  if(!c.visible||!state.present.has(c.s.id))continue;
+  c.phase+=elapsed*Math.PI*2*c.profile.cadence;
+  animateCritter(c.card,{phase:c.phase,time:now/1000+c.timeOffset,activity:c.profile.motion==='settled'?0:1,profile:c.profile,reduced:settings.reduceMotion});
+ }}
  raf=requestAnimationFrame(frame);}
 raf=requestAnimationFrame(frame);

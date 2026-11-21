@@ -5,3 +5,7 @@
 
 /* V1.3: joint motion is controlled by the shared animation rig. */
 #viewport{z-index:0}header,.hud,#message,footer{z-index:5}.intro{z-index:6}.animal .leg,.animal [data-leg],.animal .tail,.animal.water .body{animation:none}.animal{transition:none}.animal.airborne{filter:none}.animal.airborne:after{display:none}.animal svg{overflow:visible}
+
+/* V1.3.1: each articulated part rotates around its own local anchor. */
+.animal [data-anim],.animal [data-body],.card [data-anim],.card [data-body]{transform-origin:0 0;transform-box:view-box}
+.motion-notice{pointer-events:auto;margin-top:10px;padding:10px 12px;border-radius:12px;background:#faf7e9;color:#344e3c;font:12px Arial,sans-serif;line-height:1.4;box-shadow:0 3px 15px #1d382217}

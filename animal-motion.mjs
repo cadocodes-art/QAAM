@@ -11,15 +11,21 @@ export function jointPose(j,{phase=0,time=0,activity=1,profile={},reduced=false}
  const strength=clamp(activity,0,1),swing=Number(j.swing)||0;
  let angle=0,scaleX=1,scaleY=1,shiftY=0;
  if(kind==='wing'||kind==='flutter-wing'){
-  const flight=profile.air?1:strength;
+  // Ground birds occasionally stretch a wing; flying animals flap continuously.
+  const flight=profile.air?1:Math.pow(Math.max(0,Math.sin(time*1.1+offset)),6)*.65;
   const cycle=time*Math.min(7,(profile.flapHz||2.8)*speed)*TAU+offset;
-  angle=Math.sin(cycle)*swing*flight;
-  if(kind==='flutter-wing')scaleX=1-flight*(.82*(1-Math.abs(Math.cos(cycle))));
+  angle=(profile.air?Math.sin(cycle):-1)*Math.min(45,swing*1.3)*flight;
+  // A squared cosine closes and opens smoothly without a cusp at each fold.
+  if(kind==='flutter-wing')scaleX=1-flight*.82*(1-Math.cos(cycle)**2);
  }else if(kind==='leg'||kind==='hop-leg'){
-  angle=Math.sin(phase*speed+offset)*swing*strength;
+  // Keep airborne feet tucked: only grounded legs perform walking/hopping cycles.
+  angle=profile.air?Math.sin(time*1.6+offset)*swing*.15:
+   Math.sin(phase*speed+offset)*Math.min(25,swing*(kind==='hop-leg'?1.7:2.2))*strength;
  }else if(kind==='tail'||kind==='fin'||kind==='flipper'){
   const swim=profile.water;
-  angle=Math.sin((swim?phase:time*1.5)*speed+offset)*swing*(swim?Math.max(.15,strength):.25+.75*strength);
+  const amount=Math.min(kind==='tail'?18:26,swing*(kind==='tail'?2.4:1.8));
+  const cycle=swim?phase+time*.35:time*1.9;
+  angle=Math.sin(cycle*speed+offset)*amount*(swim?.3+.7*strength:.6+.4*strength);
  }else if(kind==='slither'&&profile.kind==='worm'){
   const wave=Math.sin(phase*speed+offset)*strength;
   shiftY=wave*.65;scaleX=1+wave*.03;
