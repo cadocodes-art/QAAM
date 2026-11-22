@@ -1,3 +1,5 @@
+import {initImages} from './image-overlays.mjs';
+import {initCountdown} from './countdown.mjs';
 import {VISIT_KEY,captureVisit,restoreVisit} from './visit-state.mjs';
 import {noiseThreshold,readNoiseLimit} from './noise-limit.mjs';
 import {initChallenges} from './challenges.mjs';
@@ -22,6 +24,8 @@ const autoCamera={direction:1,velocity:0,pause:0,position:null};let manualPause=
 const threshold=()=>noiseThreshold(baseline,settings.noiseLimit);
 const announce=text=>{$('message').textContent=text;};
 const textBoxes=initTextBoxes({announce,onInteract:()=>pauseAutoscroll()});
+const imageOverlays=initImages({announce,onInteract:()=>pauseAutoscroll()});
+const countdown=initCountdown({announce,onInteract:()=>pauseAutoscroll()});
 const challenges=initChallenges({announce,onInteract:()=>pauseAutoscroll(),onListen:start,getMode:()=>mode});
 function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=k==='autoScrollSpeed'?settings[k]+'×':settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);$('enableMotion').hidden=!settings.reduceMotion;$('motionHelp').textContent=settings.reduceMotion?'Animal parts are paused. Turn Reduce motion off to animate legs, tails, and wings.':'Legs, tails, and wings animate in the meadow and on discovered collection cards.';try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
 for(const k of Object.keys(defaults))$(k).addEventListener('input',()=>{settings[k]=$(k).type==='checkbox'?$(k).checked:Number($(k).value);if(k==='autoScroll'){autoCamera.velocity=0;autoCamera.position=null;autoCamera.pause=0;manualPause=0;}applySettings();});applySettings();
@@ -122,7 +126,7 @@ function resetProgress(){
  stop();previewing=false;removeActors();state=makeState();motionTime=0;visitStarted=true;saveClock=0;
  challenges.resetCurrent();updateRoster();$('timer').textContent='0s';$('pause').textContent='Resume listening';persistVisit();
  $('resetConfirm').hidden=true;$('resetProgress').hidden=false;$('resetProgress').focus();
- announce('Progress reset. Resume listening for a fresh meadow. Your decorations, text, and settings are kept.');
+ announce('Progress reset. Resume listening for a fresh meadow. Your decorations, text, images, timer, and settings are kept.');
 }
 $('resetProgress').onclick=()=>{$('resetConfirm').hidden=false;$('resetProgress').hidden=true;$('cancelReset').focus();};
 $('cancelReset').onclick=()=>{$('resetConfirm').hidden=true;$('resetProgress').hidden=false;$('resetProgress').focus();};
@@ -153,7 +157,7 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  motionTime+=elapsed;
  if(mode==='live'){saveClock+=dt;if(saveClock>=2){saveClock=0;persistVisit();}}
  manualPause=Math.max(0,manualPause-elapsed);
- if(elapsed>0&&settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!$('challengeDialog').open&&!textBoxes.isEditing()){
+ if(elapsed>0&&settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!$('challengeDialog').open&&!textBoxes.isEditing()&&!imageOverlays.isEditing()&&!countdown.isEditing()){
   autoCamera.position=advanceAutoscroll(autoCamera,autoCamera.position??viewport.scrollLeft,elapsed,Math.max(0,ww-viewport.clientWidth),60*settings.autoScrollSpeed);
   viewport.scrollLeft=autoCamera.position;updateLocation();
  }else{autoCamera.velocity=0;autoCamera.position=null;}

@@ -1,6 +1,6 @@
 // Presentation only: the microphone, animal simulation and camera keep running.
 export function initControlsVisibility(){
- const delay=2000,selector='.header-actions, .autoscroll, footer, #enableMotion, .text-move';
+ const delay=2000,selector='.header-actions, .autoscroll, footer, #enableMotion, .text-move, .image-move';
  const welcome=document.getElementById('welcome'),dialogs=[...document.querySelectorAll('dialog')];
  const held=new Set(),wakeTouches=new Set();
  let timer=0,lastActivity=performance.now(),asleep=false,keyboard=false,suppressClickUntil=0;

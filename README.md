@@ -1,7 +1,78 @@
-# Quiet as a Mouse — V1.5.1 · Pause & Resume
+# Quiet as a Mouse — V1.6 · Classroom Tools
 
-This is the complete online project, based on V1.5.
+This is the complete online project, based on V1.5.1.
 It keeps CadoCodes’ welcome screen, logo, panorama, text tools, and hosting setup.
+
+## New in V1.6
+
+The top-right toolbar now contains six equal-size circular buttons in two columns
+and three rows: Settings / Text, Images / Timer, Goals / Animals. The Images,
+Timer, and Settings icons use the pictures supplied by CadoCodes. The animal
+collection has moved out of the bottom-center position. Touch targets remain at
+least 48 pixels across, including landscape layouts.
+
+All six buttons, Autoscroll, bottom controls, and image/text move handles hide
+after two seconds without input. Move your mouse to reveal them. On touchscreens,
+the first tap reveals the controls. Open menus, held drags, and keyboard focus
+keep controls available. Imported images, text, and a displayed timer stay visible.
+
+### Import, scale, and move images
+
+1. Open **Images → Import images**. Choose up to five PNG, JPG, WebP, or GIF files.
+2. Select a thumbnail to edit it. The Scale slider preserves proportions;
+   100% means the largest size that fits the screen. Positions have sliders too.
+3. Close the panel and drag the handle above the image to move it. A focused
+   handle also moves with arrow keys (hold Shift for a larger step).
+4. Tap the image to reopen its editor. **Remove this image** frees a space.
+
+Images are local to this browser and website. They are not sent to a server or
+included in other visitors’ games. They save separately from text and game
+progress and remain after **Settings → Reset progress**. Clearing site data or
+switching browsers/devices/domains does not carry them across. If browser storage
+fails, the panel explains that images last only for the current visit.
+
+Each source image may be up to 20 MB. Images are fitted within 2048 × 2048 pixels
+for storage, retaining their proportions and transparency. Animated GIFs become
+still images. HEIC and other unsupported formats should first be exported as
+PNG or JPG. Uploaded images do not scroll with the scenery and stay within the
+screen when it is resized.
+
+### Classroom timer
+
+Open **Timer**, enter hours/minutes/seconds, and press **Start timer**. Durations
+can be any whole number of seconds from **00:00:01 to 24:00:00**, inclusive.
+Minutes and seconds must be 0–59; 24 hours requires both to be zero.
+
+- The countdown runs independently of microphone listening, noise levels, and
+  classroom quiet goals. Pausing the meadow does not pause this separate timer.
+- **Pause timer / Resume timer** preserve remaining time. **Reset timer** returns
+  to its last started duration and stops it. Change the fields to start a new
+  duration. Inputs are disabled while it is running.
+- **Show timer on screen** controls the countdown card. It remains visible when
+  the toolbar hides. At zero, it displays **Time’s up!** with no alarm sound.
+- Leaving the page pauses and saves the timer. Reopening restores it paused;
+  resume it from the Timer panel. It earns no offline time. A forced browser or
+  device crash can lose the latest unsaved second.
+- Settings’ **Reset progress** keeps the timer. Use **Reset timer** separately.
+
+Upload the entire extracted project, including the new `icons/` directory and
+all six new files: `classroom-tools.css`, `image-model.mjs`, `image-store.mjs`,
+`image-overlays.mjs`, `timer-model.mjs`, and `countdown.mjs`.
+
+## V1.6 verification
+
+Browser checks covered six simultaneous image selections (five accepted, one
+skipped), damaged-image errors, scale and position controls, pointer dragging,
+removal, saved image restoration, a one-second timer, a 24-hour timer, invalid
+24-hour-plus-one-second input, timer pause/reload, and automatic control hiding
+while images and countdown remain visible. The supplied icons were checked in
+the toolbar. Layouts were reviewed at desktop, tablet, phone, small-phone, and
+landscape sizes. These checks did not use physical iPad/Android hardware.
+
+Automated checks cover every supported timer duration (1–86,400 seconds),
+completion exactly once, paused restoration, malformed saved image records,
+the five-image limit, proportional sizing, and movement bounded to five viewport
+sizes. Existing species, artwork, rarity, and saved-visit model are preserved.
 
 ## New in V1.5.1: pause instead of losing visitors
 
@@ -136,7 +207,7 @@ available during a held drag or while a keyboard user has a control focused.
 Hidden controls cannot be clicked or reached accidentally. Reduced motion
 removes the fade animation.
 
-The badge says **V1.5.1 · PAUSE & RESUME**.
+The badge says **V1.6 · CLASSROOM TOOLS**.
 
 ## Text boxes in V1.4
 
@@ -262,7 +333,7 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.5.1.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.6.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs`/`.css` file, all PNGs, and the `fonts` folder.

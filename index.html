@@ -1,17 +1,26 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f1df"><meta name="description" content="A little quiet goes a long way. A microphone-powered wildlife meadow."><title>Quiet as a Mouse · V1.5.1 · PAUSE & RESUME</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./text-boxes.css"><link rel="stylesheet" href="./controls-visibility.css"><link rel="stylesheet" href="./welcome-screen.css"><link rel="stylesheet" href="./challenges.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f1df"><meta name="description" content="A little quiet goes a long way. A microphone-powered wildlife meadow."><title>Quiet as a Mouse · V1.6 · CLASSROOM TOOLS</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./text-boxes.css"><link rel="stylesheet" href="./controls-visibility.css"><link rel="stylesheet" href="./welcome-screen.css"><link rel="stylesheet" href="./challenges.css"><link rel="stylesheet" href="./classroom-tools.css"></head>
 <body>
 <main id="game" aria-label="Wildlife meadow">
  <div id="viewport" tabindex="0" aria-label="Scrollable habitat. Swipe, drag, or use left and right arrow keys."><div id="world"><div class="scenery"><img id="panoramaImage" src="./panorama.png" alt="Continuous meadow, curved shoreline, and open water" draggable="false" fetchpriority="high"></div><div id="animals"></div><div class="scenery water-surface" aria-hidden="true"><img src="./panorama.png" alt="" draggable="false"></div></div></div>
+ <div id="imageLayer" aria-label="Your imported images"></div>
  <div id="textLayer" aria-label="Your text boxes"></div>
- <header><div class="brand"><span class="eyebrow">A LITTLE QUIET GOES A LONG WAY</span><h1>Quiet as a mouse<span>✧</span></h1><span class="version">THE MEADOW · V1.5.1 · PAUSE & RESUME</span></div><div class="header-tools"><div class="header-actions"><button id="settingsButton" class="round" aria-label="Open settings" title="Settings">⚙</button><button id="textButton" class="round" aria-label="Open text boxes" title="Add or edit text"><span aria-hidden="true">Tt</span><small>TEXT</small></button><button id="challengeButton" class="round" aria-label="Open classroom challenges" title="Classroom challenges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0ZM7 5H3v3a4 4 0 0 0 4 4M17 5h4v3a4 4 0 0 1-4 4M12 14v6M7 21h10"/></svg><small>GOALS</small></button></div><img class="creator-mark" src="./cadocodes-logo.png" alt="CadoCodes" width="80" height="80" draggable="false"></div></header>
+ <header><div class="brand"><span class="eyebrow">A LITTLE QUIET GOES A LONG WAY</span><h1>Quiet as a mouse<span>✧</span></h1><span class="version">THE MEADOW · V1.6 · CLASSROOM TOOLS</span></div><div class="header-tools"><div class="header-actions" role="group" aria-label="Meadow tools">
+ <button id="settingsButton" class="round tool-button" aria-label="Open settings" title="Settings"><img src="./icons/settings.png" alt="" draggable="false"><small>Settings</small></button>
+ <button id="textButton" class="round tool-button" aria-label="Open text boxes" title="Add or edit text"><span aria-hidden="true">Tt</span><small>Text</small></button>
+ <button id="imageButton" class="round tool-button" aria-label="Open images" title="Import and arrange images"><img src="./icons/images.png" alt="" draggable="false"><small>Images</small></button>
+ <button id="countdownButton" class="round tool-button" aria-label="Open timer" title="Classroom timer"><img src="./icons/timer.webp" alt="" draggable="false"><small>Timer</small></button>
+ <button id="challengeButton" class="round tool-button" aria-label="Open classroom challenges" title="Classroom challenges"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0ZM7 5H3v3a4 4 0 0 0 4 4M17 5h4v3a4 4 0 0 1-4 4M12 14v6M7 21h10"/></svg><small>Goals</small></button>
+ <button id="collectionButton" class="round tool-button" aria-label="Open animal collection" title="Your animal collection"><span aria-hidden="true">♧</span><small>Animals</small></button>
+ </div><img class="creator-mark" src="./cadocodes-logo.png" alt="CadoCodes" width="80" height="80" draggable="false"></div></header>
  <section class="autoscroll glass" aria-label="Autoscroll controls"><label class="auto-toggle" for="autoScroll"><input id="autoScroll" type="checkbox"> Autoscroll</label><label class="auto-speed" for="autoScrollSpeed"><span>Speed <output id="autoScrollSpeedValue">1×</output></span><input id="autoScrollSpeed" type="range" min="0.25" max="3" step="0.25" value="1" title="Autoscroll speed"></label></section>
  <section class="hud" aria-label="Game status"><div id="soundPanel" class="glass"><div class="row"><span class="eyebrow">SOUND IN YOUR SPACE</span><span id="soundWord">MIC OFF</span></div><div class="meter"><div id="meterFill"></div><i id="thresholdMarker"></i></div><div class="row small"><span>Quiet</span><span>Too loud</span></div></div><div class="stats glass"><span id="timerPanel"><b id="timer">0s</b> quietly</span><span id="countPanel"><b id="count">0</b> visitors</span></div><section id="challengeHud" class="glass" aria-label="Classroom quiet goal" hidden><div class="challenge-hud-title"><span>Class goal</span><span id="challengeTime">0:00 / 10:00</span></div><progress id="challengeProgress" value="0" max="600" aria-label="Quiet goal progress"></progress><span id="challengeState">Ready when you are</span></section><button id="enableMotion" class="motion-notice" hidden>Animal animation is off. Enable</button></section>
+ <section id="countdownHud" class="glass" aria-label="Classroom timer" hidden><span id="countdownHudState">Ready when you are</span><strong id="countdownHudValue" role="timer" aria-live="off">05:00</strong></section>
  <div id="challengeCelebration" role="status" aria-live="polite" hidden></div><div id="message" role="status" aria-live="polite">Drag, swipe, or use the arrows to explore.</div>
- <footer><div class="navigation"><button id="left" class="round" aria-label="Scroll left">←</button><span id="location">THE MEADOW</span><button id="right" class="round" aria-label="Scroll right">→</button></div><button id="collectionButton" class="round collection" aria-label="Open animal collection"><span>♧</span><small>ANIMALS</small></button><button id="pause" class="pill">Start listening</button></footer>
+ <footer><div class="navigation"><button id="left" class="round" aria-label="Scroll left">←</button><span id="location">THE MEADOW</span><button id="right" class="round" aria-label="Scroll right">→</button></div><button id="pause" class="pill">Start listening</button></footer>
  <section id="welcome" class="intro glass welcome-screen" aria-labelledby="welcomeTitle">
   <div class="welcome-content">
-   <span class="eyebrow">QUIET AS A MOUSE &middot; V1.5.1</span>
+   <span class="eyebrow">QUIET AS A MOUSE &middot; V1.6</span>
    <h2 id="welcomeTitle">Hello wanderer,</h2>
    <p class="welcome-message">I put emmense research into this game. Please take 1 second to 1 hour of your time to play this game. I worked hard on this,</p>
    <p class="welcome-signature">-CadoCodes</p>
@@ -41,11 +50,11 @@
  <label class="slider-label" for="noiseLimit">Noise Limit <output id="noiseLimitValue">50</output></label><input id="noiseLimit" type="range" min="-100" max="200" step="1" value="50" aria-describedby="noiseLimitHelp"><p id="noiseLimitHelp" class="small muted">Higher numbers allow more noise: −100 is the quietest limit; 200 allows the most. This is a game scale, not decibels. Rare visitors still need a quieter space.</p>
  <label class="slider-label" for="scrollSpeed">Scroll sensitivity <output id="scrollSpeedValue">1</output></label><input id="scrollSpeed" type="range" min="0.5" max="2" step="0.1" value="1">
  <button id="calibrate" class="pill">Recalibrate microphone</button><p id="calibrationStatus" role="status" class="small muted">Stay quiet for three seconds during calibration.</p><p class="small muted">Changes save on this device. Switching tabs pauses listening and keeps your visitors. Resume listening when you return.</p>
- <section class="reset-section" aria-labelledby="progressTitle"><h3 id="progressTitle">Saved meadow</h3><p id="progressSaveStatus" class="muted" role="status"></p><button id="resetProgress" class="pill">Reset progress</button><div id="resetConfirm" hidden><p>Remove all visitors and reset quiet timers and the current classroom goal? Earned decorations, text boxes, and settings will stay.</p><div class="reset-actions"><button id="cancelReset" class="pill">Cancel</button><button id="confirmReset" class="pill">Reset now</button></div></div></section>
+ <section class="reset-section" aria-labelledby="progressTitle"><h3 id="progressTitle">Saved meadow</h3><p id="progressSaveStatus" class="muted" role="status"></p><button id="resetProgress" class="pill">Reset progress</button><div id="resetConfirm" hidden><p>Remove all visitors and reset quiet timers and the current classroom goal? Earned decorations, text boxes, images, your timer, and settings will stay.</p><div class="reset-actions"><button id="cancelReset" class="pill">Cancel</button><button id="confirmReset" class="pill">Reset now</button></div></div></section>
 </dialog>
 <dialog id="textDialog" class="drawer text-panel" aria-labelledby="textDialogTitle">
  <div class="drawer-head"><div><span class="eyebrow">A MESSAGE FOR YOUR MEADOW</span><h2 id="textDialogTitle">Your text</h2></div><button class="round close" aria-label="Close text boxes">×</button></div>
- <div class="row"><span id="textBoxCount">0 / 10 boxes</span><span class="muted">V1.5.1 · PAUSE & RESUME</span></div>
+ <div class="row"><span id="textBoxCount">0 / 10 boxes</span><span class="muted">V1.6 · CLASSROOM TOOLS</span></div>
  <button id="addText" class="primary" type="button">+ Add text box</button>
  <p id="textLimit" role="status" hidden>All 10 boxes are in use. Remove one to add another.</p>
  <div id="textList" class="text-list" role="group" aria-label="Choose a text box"></div>
@@ -64,4 +73,38 @@
   <button id="removeText" class="text-remove" type="button">Remove this box</button>
  </section>
  <p id="textSaveStatus" class="muted" role="status"></p>
-</dialog><noscript><div class="intro glass">Please enable JavaScript to play Quiet as a Mouse.</div></noscript><script type="module" src="./game.mjs"></script></body></html>
+</dialog>
+<dialog id="imageDialog" class="drawer classroom-panel" aria-labelledby="imageTitle">
+ <div class="drawer-head"><div><span class="eyebrow">MAKE THE MEADOW YOUR OWN</span><h2 id="imageTitle">Your images</h2></div><button class="round close" aria-label="Close images">×</button></div>
+ <p>Add up to five images, then move and scale them to suit your classroom.</p>
+ <div class="row"><span id="imageCount">0 / 5 images</span><span class="muted">On this device</span></div>
+ <input id="imageFiles" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+ <button id="importImages" class="primary" type="button" disabled>Import images</button>
+ <p id="imageImportStatus" role="status"></p><p id="imageLimit" class="muted" hidden>All 5 spaces are in use. Remove an image to add another.</p>
+ <div id="imageList" class="image-list" role="group" aria-label="Choose an image"></div>
+ <p id="imageEmpty" class="muted">PNG, JPG, WebP, or GIF · up to 20 MB each. GIFs become still images. Images stay on your device.</p>
+ <section id="imageEditor" aria-label="Edit selected image" hidden>
+  <label class="text-label" for="imageScale">Scale <output id="imageScaleValue">30%</output></label><input id="imageScale" type="range" min="10" max="100" step="1" value="30">
+  <p class="muted">100% is the largest size that fits on your screen. Your image keeps its original proportions.</p>
+  <label class="text-label" for="imageX">Horizontal position <output id="imageXValue">50%</output></label><input id="imageX" type="range" min="0" max="100" step="1" value="50">
+  <label class="text-label" for="imageY">Vertical position <output id="imageYValue">50%</output></label><input id="imageY" type="range" min="0" max="100" step="1" value="50">
+  <p class="muted">Close this panel and drag the move handle above an image. Tap the image to edit it again.</p>
+  <button id="removeImage" class="text-remove" type="button">Remove this image</button>
+ </section>
+ <p id="imageSaveStatus" class="muted" role="status"></p>
+</dialog>
+<dialog id="countdownDialog" class="drawer classroom-panel" aria-labelledby="countdownTitle">
+ <div class="drawer-head"><div><span class="eyebrow">A LITTLE TIME TO FOCUS</span><h2 id="countdownTitle">Classroom timer</h2></div><button class="round close" aria-label="Close timer">×</button></div>
+ <p>Choose any duration from 1 second to 24 hours.</p>
+ <form id="countdownForm">
+  <div class="duration-fields"><label for="countdownHours">Hours<input id="countdownHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="0"></label><label for="countdownMinutes">Minutes<input id="countdownMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="5"></label><label for="countdownSeconds">Seconds<input id="countdownSeconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0"></label></div>
+  <p id="countdownError" role="status" hidden>Enter a whole-number duration from 00:00:01 to 24:00:00. Minutes and seconds must be between 0 and 59.</p>
+  <div class="countdown-reading"><strong id="countdownValue" role="timer" aria-live="off">05:00</strong><span id="countdownState" role="status">Ready when you are</span></div>
+  <button id="countdownStart" class="primary" type="submit">Start timer</button><button id="countdownPause" class="primary" type="button" hidden>Pause timer</button>
+  <button id="countdownReset" class="pill" type="button">Reset timer</button>
+ </form>
+ <label class="setting">Show timer on screen <input id="showCountdown" type="checkbox" checked></label>
+ <p class="muted">The timer runs independently of listening and noise levels. Leaving this page pauses it. Resume here when you return.</p>
+ <p class="muted">A quiet “Time’s up!” notice appears when it finishes. No alarm sound plays.</p><p id="countdownSave" class="muted" role="status"></p>
+</dialog>
+<noscript><div class="intro glass">Please enable JavaScript to play Quiet as a Mouse.</div></noscript><script type="module" src="./game.mjs"></script></body></html>
