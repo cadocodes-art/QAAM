@@ -1,0 +1,16 @@
+/* V1.4.1: creator welcome and top-right mark. */
+.header-tools{display:flex;flex-direction:column;align-items:flex-end;gap:14px;pointer-events:none}
+.creator-mark{display:block;width:80px;height:80px;object-fit:contain;border-radius:50%;pointer-events:none;user-select:none;filter:drop-shadow(0 4px 12px #19352a22)}
+#welcome.welcome-screen{position:absolute;inset:0;z-index:20;width:100%;height:100%;max-width:none;transform:none;border:0;border-radius:0;display:grid;align-items:safe center;justify-items:center;overflow:auto;overscroll-behavior:contain;padding:48px 28px;background:radial-gradient(ellipse at 85% 10%,#e2ebd9 0,transparent 55%),#f8f5e9;box-shadow:none}
+.welcome-content{width:min(740px,100%);text-align:center}
+#welcome .eyebrow{display:block;color:#657b5e;line-height:1.6;letter-spacing:2.4px;font-size:11px}
+#welcome h2{font-size:clamp(38px,6vw,72px);line-height:1.08;margin:26px 0}
+#welcome .welcome-message{font-size:clamp(19px,2.5vw,26px);line-height:1.65;margin:0 auto;max-width:680px}
+#welcome .welcome-signature{font-size:23px;font-style:italic;line-height:1.4;margin:22px 0 32px}
+.welcome-actions{max-width:360px;margin:0 auto}
+#welcome .primary{font-size:15px;min-height:54px;margin-top:0;align-items:center;padding:17px 22px}
+#welcome .text-button{font-size:12px;min-height:44px;padding:16px 0 8px}
+#welcome .privacy{font-size:11px;line-height:1.6;margin:15px 0 0}
+#welcome #error{font-size:13px;line-height:1.5}
+@media(max-width:700px){.header-tools{gap:12px}.creator-mark{width:60px;height:60px}#welcome.welcome-screen{padding:32px 24px}#welcome h2{margin:22px 0}#welcome .welcome-signature{font-size:21px;margin:20px 0 28px}}
+@media(max-height:590px){.header-tools{gap:10px}.creator-mark{width:56px;height:56px}#welcome.welcome-screen{padding:24px}#welcome h2{font-size:36px;margin:15px 0}#welcome .welcome-message{font-size:18px;line-height:1.5}#welcome .welcome-signature{font-size:20px;margin:12px 0 20px}}

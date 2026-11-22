@@ -1,15 +1,28 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f1df"><meta name="description" content="A little quiet goes a long way. A microphone-powered wildlife meadow."><title>Quiet as a Mouse · V1.4 · AUTO-HIDE</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./text-boxes.css"><link rel="stylesheet" href="./controls-visibility.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5f1df"><meta name="description" content="A little quiet goes a long way. A microphone-powered wildlife meadow."><title>Quiet as a Mouse · V1.4.1 · AUTO-HIDE</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./text-boxes.css"><link rel="stylesheet" href="./controls-visibility.css"><link rel="stylesheet" href="./welcome-screen.css"></head>
 <body>
 <main id="game" aria-label="Wildlife meadow">
  <div id="viewport" tabindex="0" aria-label="Scrollable habitat. Swipe, drag, or use left and right arrow keys."><div id="world"><div class="scenery"><img id="panoramaImage" src="./panorama.png" alt="Continuous meadow, curved shoreline, and open water" draggable="false" fetchpriority="high"></div><div id="animals"></div><div class="scenery water-surface" aria-hidden="true"><img src="./panorama.png" alt="" draggable="false"></div></div></div>
  <div id="textLayer" aria-label="Your text boxes"></div>
- <header><div class="brand"><span class="eyebrow">A LITTLE QUIET GOES A LONG WAY</span><h1>Quiet as a mouse<span>✧</span></h1><span class="version">THE MEADOW · V1.4 · AUTO-HIDE</span></div><div class="header-actions"><button id="settingsButton" class="round" aria-label="Open settings" title="Settings">⚙</button><button id="textButton" class="round" aria-label="Open text boxes" title="Add or edit text"><span aria-hidden="true">Tt</span><small>TEXT</small></button></div></header>
+ <header><div class="brand"><span class="eyebrow">A LITTLE QUIET GOES A LONG WAY</span><h1>Quiet as a mouse<span>✧</span></h1><span class="version">THE MEADOW · V1.4.1 · AUTO-HIDE</span></div><div class="header-tools"><div class="header-actions"><button id="settingsButton" class="round" aria-label="Open settings" title="Settings">⚙</button><button id="textButton" class="round" aria-label="Open text boxes" title="Add or edit text"><span aria-hidden="true">Tt</span><small>TEXT</small></button></div><img class="creator-mark" src="./cadocodes-logo.png" alt="CadoCodes" width="80" height="80" draggable="false"></div></header>
  <section class="autoscroll glass" aria-label="Autoscroll controls"><label class="auto-toggle" for="autoScroll"><input id="autoScroll" type="checkbox"> Autoscroll</label><label class="auto-speed" for="autoScrollSpeed"><span>Speed <output id="autoScrollSpeedValue">1×</output></span><input id="autoScrollSpeed" type="range" min="0.25" max="3" step="0.25" value="1" title="Autoscroll speed"></label></section>
  <section class="hud" aria-label="Game status"><div id="soundPanel" class="glass"><div class="row"><span class="eyebrow">SOUND IN YOUR SPACE</span><span id="soundWord">MIC OFF</span></div><div class="meter"><div id="meterFill"></div><i id="thresholdMarker"></i></div><div class="row small"><span>Quiet</span><span>Too loud</span></div></div><div class="stats glass"><span id="timerPanel"><b id="timer">0s</b> quietly</span><span id="countPanel"><b id="count">0</b> visitors</span></div><button id="enableMotion" class="motion-notice" hidden>Animal animation is off. Enable</button></section>
  <div id="message" role="status" aria-live="polite">Drag, swipe, or use the arrows to explore.</div>
  <footer><div class="navigation"><button id="left" class="round" aria-label="Scroll left">←</button><span id="location">THE MEADOW</span><button id="right" class="round" aria-label="Scroll right">→</button></div><button id="collectionButton" class="round collection" aria-label="Open animal collection"><span>♧</span><small>ANIMALS</small></button><button id="pause" class="pill">Start listening</button></footer>
- <div id="welcome" class="intro glass"><span class="eyebrow">WELCOME TO YOUR QUIET PLACE</span><h2>Be still.<br>Meet the wild.</h2><p>Keep your space quiet and animals may wander in. A longer, softer silence gives the rarest visitors a chance. A loud burst may scare away one or two visitors.</p><button id="start" class="primary">Enter the meadow <span>→</span></button><button id="preview" class="text-button">Take a peek without a microphone</button><p class="privacy">Only the sound level stays here. Audio is never recorded or uploaded.</p><p id="error" role="alert"></p></div>
+ <section id="welcome" class="intro glass welcome-screen" aria-labelledby="welcomeTitle">
+  <div class="welcome-content">
+   <span class="eyebrow">QUIET AS A MOUSE &middot; V1.4.1</span>
+   <h2 id="welcomeTitle">Hello wanderer,</h2>
+   <p class="welcome-message">I put emmense research into this game. Please take 1 second to 1 hour of your time to play this game. I worked hard on this,</p>
+   <p class="welcome-signature">-CadoCodes</p>
+   <div class="welcome-actions">
+    <button id="start" class="primary">Enter the meadow <span aria-hidden="true">&rarr;</span></button>
+    <button id="preview" class="text-button">Take a peek without a microphone</button>
+    <p class="privacy">Only the sound level stays here. Audio is never recorded or uploaded.</p>
+    <p id="error" role="alert"></p>
+   </div>
+  </div>
+ </section>
 </main>
 <dialog id="collectionDialog" class="drawer"><div class="drawer-head"><div><span class="eyebrow">WHO'S HERE TODAY?</span><h2>Your visitors</h2></div><button class="round close" aria-label="Close animal collection">×</button></div><p class="muted">210 possible visitors. Names appear when animals arrive and disappear when they flee.</p><div id="roster"></div></dialog>
 <dialog id="settingsDialog" class="settings glass"><div class="drawer-head"><div><span class="eyebrow">MAKE YOURSELF AT HOME</span><h2>Settings</h2></div><button class="round close" aria-label="Close settings">×</button></div>
@@ -20,7 +33,7 @@
 </dialog>
 <dialog id="textDialog" class="drawer text-panel" aria-labelledby="textDialogTitle">
  <div class="drawer-head"><div><span class="eyebrow">A MESSAGE FOR YOUR MEADOW</span><h2 id="textDialogTitle">Your text</h2></div><button class="round close" aria-label="Close text boxes">×</button></div>
- <div class="row"><span id="textBoxCount">0 / 10 boxes</span><span class="muted">V1.4 · AUTO-HIDE</span></div>
+ <div class="row"><span id="textBoxCount">0 / 10 boxes</span><span class="muted">V1.4.1 · AUTO-HIDE</span></div>
  <button id="addText" class="primary" type="button">+ Add text box</button>
  <p id="textLimit" role="status" hidden>All 10 boxes are in use. Remove one to add another.</p>
  <div id="textList" class="text-list" role="group" aria-label="Choose a text box"></div>

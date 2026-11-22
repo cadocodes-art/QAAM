@@ -1,7 +1,14 @@
-# Quiet as a Mouse - V1.4 Auto-Hide
+# Quiet as a Mouse - V1.4.1
 
-V1.4 adds classroom text boxes. The game title, top-left badge, animal preview
-page, and ZIP filename all show **V1.4**.
+V1.4.1 replaces the opening popup with a large welcome screen containing
+CadoCodes' message and the existing Enter the meadow button. The circular
+CadoCodes logo sits below Settings and Text in the top-right corner and
+remains visible when the controls hide. The screen adapts to small displays
+and can scroll on short screens so its buttons remain reachable.
+
+The microphone-free preview, privacy notice, microphone error messages,
+Auto-Hide behavior, classroom text boxes, saved settings and gameplay remain.
+The game title, top-left badge, text panel and animal preview show V1.4.1.
 
 ## Controls disappear after two seconds
 
@@ -17,7 +24,7 @@ available during a held drag or while a keyboard user has a control focused.
 Hidden controls cannot be clicked or reached accidentally. Reduced motion
 removes the fade animation.
 
-The badge says **V1.4 · AUTO-HIDE** to distinguish this build from the earlier
+The badge says **V1.4.1 · AUTO-HIDE** to distinguish this build from the earlier
 V1.4 text-box release.
 
 ## Text boxes in V1.4
@@ -144,13 +151,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.4-AutoHide.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.4.1.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
-4. Replace matching files and include every new `.mjs`/`.css` file, both PNGs, and the `fonts` folder.
+4. Replace matching files and include every new `.mjs`/`.css` file, all PNGs, and the `fonts` folder.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.4.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.4.1.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is
@@ -161,6 +168,7 @@ folder, not loose files. This ZIP contains normal source files and assets.
 
 ## File guide
 
+- `welcome-screen.css`, `cadocodes-logo.png`: welcome screen and creator logo.
 - `index.html`, `style.css`, `game.mjs`: game interface, sound, and movement.
 - `controls-visibility.mjs`, `controls-visibility.css`: two-second control hiding and wake interactions.
 - `text-boxes.mjs`, `text-model.mjs`, `text-boxes.css`: text tools, limits, placement and styling.
