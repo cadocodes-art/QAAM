@@ -1,7 +1,23 @@
-# Quiet as a Mouse — V1.6 · Classroom Tools
+# Quiet as a Mouse — V1.6.1 · Classroom Tools
 
 This is the complete online project, based on V1.5.1.
 It keeps CadoCodes’ welcome screen, logo, panorama, text tools, and hosting setup.
+
+## New in V1.6.1
+
+The Animals button uses CadoCodes’ supplied dog icon. It is embedded directly in
+`index.html`, like the Settings, Images, and Timer icons, so it does not depend
+on an external image path. The original PNG is also in `icons/animals.png`.
+
+The preview still shows exactly ten randomly selected Ultra-Common visitors.
+Existing saved progress, text, imported images, and settings remain compatible.
+The title, welcome screen, and version badge show V1.6.1.
+
+For GitHub/Cloudflare, extract this ZIP and upload its files and folders into the
+same repository folder as your existing `index.html`. Keep filenames unchanged.
+For an existing V1.6 installation, replacing `index.html` and `game.mjs` applies
+the icon and preview fixes. Wait for Cloudflare to finish deploying, then reload.
+Do not upload the ZIP itself as the website or rename the page to `index(2).html`.
 
 ## V1.6 icon and preview fix
 
@@ -221,7 +237,7 @@ available during a held drag or while a keyboard user has a control focused.
 Hidden controls cannot be clicked or reached accidentally. Reduced motion
 removes the fade animation.
 
-The badge says **V1.6 · CLASSROOM TOOLS**.
+The badge says **V1.6.1 · CLASSROOM TOOLS**.
 
 ## Text boxes in V1.4
 
@@ -347,7 +363,7 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.6.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.6.1-Online.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs`/`.css` file, all PNGs, and the `fonts` folder.
