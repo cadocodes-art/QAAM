@@ -1,7 +1,43 @@
-# Quiet as a Mouse — V1.5 · Classroom & Wildlife
+# Quiet as a Mouse — V1.5.1 · Pause & Resume
 
-This is the complete online project, based on your supplied V1.4.1 ZIP.
+This is the complete online project, based on V1.5.
 It keeps CadoCodes’ welcome screen, logo, panorama, text tools, and hosting setup.
+
+## New in V1.5.1: pause instead of losing visitors
+
+- **Pause** appears while listening. It releases the microphone and freezes
+  the meadow, quiet timers, and Autoscroll without clearing your visitors.
+- **Resume listening** reconnects the microphone and continues the same meadow.
+- Switching tabs, minimizing, leaving the page, or a microphone interruption
+  pauses and saves the visit. Returning never starts the microphone by itself.
+- Reopening or refreshing the site restores the saved visitors, animal positions,
+  continuous quiet timers, chance-check progress, and camera position. The game
+  opens paused. No quiet time or animals are earned while away.
+- Saved microphone calibration is reused when resuming, so the quiet timers are
+  not wiped by startup calibration. Use Recalibrate microphone if the room or
+  input device has changed; calibration itself also preserves progress.
+- A microphone error or the separate microphone-free preview cannot erase your
+  saved visit. Preview animals are never added to the saved collection.
+- Loud sounds during active listening still scare away 1–2 animals as before.
+
+Open **Settings → Reset progress** to start over. A confirmation explains that
+Reset removes visitors, clears quiet timers, and resets the current classroom
+goal. It keeps earned decorations, completed-goal totals, text boxes, Noise Limit,
+and other settings. Cancel leaves everything unchanged. Reset is saved too,
+so the cleared visitors do not return after a reload.
+
+Progress is saved in this browser on this website, including automatically every
+two seconds during listening, when visitors change, and when pausing/leaving.
+Normal closing/reopening keeps it. A forced app/device crash can lose the latest
+unsaved seconds. Clearing site data, private-browsing cleanup, or changing browsers,
+devices, or domains does not carry the save across. If storage is blocked the
+Settings panel explains that only the open page can retain progress.
+
+V1.5 did not save animal visits; V1.5.1 starts preserving visits made in this
+version. Existing text, settings, challenge progress, and rewards are retained.
+After reopening, a paused classroom goal can be resumed from the Goals panel.
+
+The new `visit-state.mjs` file must be uploaded with the rest of the project.
 
 ## Classroom challenges
 
@@ -59,6 +95,18 @@ The microphone-free preview includes rabbits, butterflies, birds, and swimmers
 so you can watch the new behaviors without connecting a microphone. Allow time
 for arrivals and for each animal to settle into a behavior.
 
+## V1.5.1 verification
+
+Save/restore tests cover all 210 species, quiet timers, spawn-check progress,
+startle cooldown, camera position, animation state, malformed saves, and reset.
+Browser checks verified manual Pause/Resume, frozen animal positions and timers,
+reload, closing/reopening the game tab, simulated tab-away and microphone
+interruptions, denied microphone access, and preview isolation. Reset and Cancel
+were checked; a reload after Reset retained text, Noise Limit, completed-goal
+counts, and decorations while clearing visitors and the current goal.
+Microphone checks used synthetic input. Physical-device browser shutdown and
+physical iPad/Android hardware were not tested for this release.
+
 ## V1.5 verification
 
 Checked goal accumulation, loud/quiet gating, calibration and microphone gates,
@@ -88,7 +136,7 @@ available during a held drag or while a keyboard user has a control focused.
 Hidden controls cannot be clicked or reached accidentally. Reduced motion
 removes the fade animation.
 
-The badge says **V1.5 · CLASSROOM & WILDLIFE**.
+The badge says **V1.5.1 · PAUSE & RESUME**.
 
 ## Text boxes in V1.4
 
@@ -214,13 +262,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.5.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.5.1.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs`/`.css` file, all PNGs, and the `fonts` folder.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.5.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.5.1.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is

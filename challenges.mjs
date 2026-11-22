@@ -43,7 +43,8 @@ export function initChallenges({announce,onInteract,onListen,getMode}){
   save();render();clearTimeout(celebrateTimer);$('challengeCelebration').hidden=true;announce('Class goal started. Quiet moments will add up toward '+Math.round(state.goal/60)+' minutes.');$('challengeDialog').close();onInteract();
   if(getMode()!=='live')await onListen();
  };
- $('challengeReset').onclick=()=>{state.active=false;state.earned=0;state.finished=false;state.goal=Number($('challengeMinutes').value)*60;save();render();announce('Quiet goal reset. Earned decorations are kept.');};
+ function resetCurrent(){state.active=false;state.earned=0;state.finished=false;state.goal=Number($('challengeMinutes').value)*60;clearTimeout(celebrateTimer);$('challengeCelebration').hidden=true;save();render();}
+ $('challengeReset').onclick=()=>{resetCurrent();announce('Quiet goal reset. Earned decorations are kept.');};
  function tick(dt,context){
   const result=advanceChallenge(state,dt,context);render(context);
   saveClock+=dt;if(saveClock>=5){saveClock=0;if(state.active)save();}
@@ -54,5 +55,5 @@ export function initChallenges({announce,onInteract,onListen,getMode}){
  }
  document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});window.addEventListener('pagehide',save);
  save();renderRewards();decor.render(state);render();
- return {tick,getFlowers:decor.getFlowers};
+ return {tick,getFlowers:decor.getFlowers,persist:save,resetCurrent};
 }

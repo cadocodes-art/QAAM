@@ -1,3 +1,4 @@
+import {VISIT_KEY,captureVisit,restoreVisit} from './visit-state.mjs';
 import {noiseThreshold,readNoiseLimit} from './noise-limit.mjs';
 import {initChallenges} from './challenges.mjs';
 import {createBehavior,stepBehavior} from './animal-behavior.mjs';
@@ -14,7 +15,9 @@ const $=id=>document.getElementById(id),world=$('world'),viewport=$('viewport');
 const defaults={showSound:true,showCount:true,showTimer:true,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,noiseLimit:50,scrollSpeed:1,autoScroll:false,autoScrollSpeed:1};
 let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem('quiet-mouse-v11-settings')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]===typeof defaults[k])settings[k]=saved[k];settings.noiseLimit=readNoiseLimit(saved);}catch{}
 settings.scrollSpeed=clamp(settings.scrollSpeed,.5,2);settings.autoScrollSpeed=Number.isFinite(settings.autoScrollSpeed)?clamp(settings.autoScrollSpeed,.25,3):1;
-let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=22,level=0,last=0,calibration=null,raf=0;
+let savedVisit=null,storageWarning='';try{savedVisit=restoreVisit(JSON.parse(localStorage.getItem(VISIT_KEY)||'null'));}catch{storageWarning='Progress cannot be saved in this browser. Keep this page open to retain your visitors.';}
+let visitStarted=!!savedVisit,previewing=false,calibrated=savedVisit?.calibrated||false,motionTime=savedVisit?.motionTime||0,saveClock=0;
+let state=savedVisit?.state||makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=savedVisit?.baseline??22,level=0,last=0,calibration=null,raf=0;
 const autoCamera={direction:1,velocity:0,pause:0,position:null};let manualPause=0,manualHold=false;
 const threshold=()=>noiseThreshold(baseline,settings.noiseLimit);
 const announce=text=>{$('message').textContent=text;};
@@ -52,7 +55,7 @@ world.style.setProperty('--panorama-height',`${PANORAMA.height/SCENE_HEIGHT*100}
 world.style.setProperty('--water-clip',waterClip());
 let firstLayout=true;
 function layoutWorld(){
- const fraction=firstLayout?0:viewport.scrollLeft/Math.max(1,world.clientWidth-viewport.clientWidth);
+ const fraction=firstLayout?(savedVisit?.camera||0):viewport.scrollLeft/Math.max(1,world.clientWidth-viewport.clientWidth);
  world.style.width=Math.max(viewport.clientWidth,viewport.clientHeight*SCENE_RATIO)+'px';
  viewport.scrollLeft=fraction*Math.max(0,world.clientWidth-viewport.clientWidth);
  firstLayout=false;autoCamera.position=null;autoCamera.velocity=0;updateLocation();
@@ -65,7 +68,7 @@ function boundsFor(a,y,w,spriteH){
  if(a.profile.air&&!a.profile.fieldFlight){const half=w/ww*1.5;return {min:half+.025,max:3-half-.025};}
  return habitatBounds(a.profile.fieldFlight?.82:y,w,spriteH,ww,h,a.s.water);
 }
-function spawn(s,preview=false){
+function spawn(s,preview=false,saved=null){
  const old=actors.get(s.id);if(old){old.el.remove();actors.delete(s.id);}
  const profile=visualProfile(s),h=world.clientHeight,w=profile.size*clamp(h/850,.65,1.25),spriteH=w*165/264;
  const minY=profile.air?(profile.fieldFlight?.55:.28):s.water?Math.max(.72,.59+spriteH/h):.73;
@@ -75,6 +78,7 @@ function spawn(s,preview=false){
  const el=document.createElement('div');el.className='animal'+(s.water?' water':'')+(profile.air?' airborne':'');el.dataset.species=s.kind;el.dataset.motion=profile.motion;el.dataset.entry=entry.side;el.dataset.arrival='entering';
  el.innerHTML=art(s);el.setAttribute('aria-label',s.name);el.setAttribute('role','img');
  const a={s,profile,el,entry,x:entry.x,y:entry.y,baseY:entry.y,dir:entry.dir,velocity:0,facing:entry.dir,faceTarget:entry.dir,target:4,phase:Math.random()*6.28,flee:0,preview,timeOffset:Math.random()*10,hover:0,behavior:createBehavior(s,profile)};
+ if(saved){Object.assign(a,saved);a.preview=false;a.flee=0;el.dataset.arrival=a.entry?'entering':'arrived';el.dataset.behavior=a.behavior.type;fitActor(a,w,spriteH);animateCritter(el,{phase:a.phase,time:motionTime+a.timeOffset,activity:0,profile:{...profile,flight:a.behavior.flight},behavior:a.behavior.type,blend:a.behavior.blend,reduced:settings.reduceMotion});}
  // Position outside the camera before inserting the element: no flash at origin.
  paintActor(a,w,spriteH,h,world.clientWidth/3);$('animals').append(el);actors.set(s.id,a);
 }
@@ -86,38 +90,76 @@ function paintActor(a,w,spriteH,h,panel){
  a.el.style.opacity=String((a.profile.water?.9:1)*(a.flee?clamp(a.flee/1.2,0,1):1));
  return left;
 }
-function clearAnimals(){for(const a of actors.values())a.el.remove();actors.clear();state=makeState();updateRoster();}
-function stop(reason='Listening paused. Your visitors will return when you start again.'){
- generation++;starting=false;$('start').disabled=false;$('pause').disabled=false;
- const oldStream=stream;stream=null;if(oldStream)for(const t of oldStream.getTracks()){t.onended=null;t.onmute=null;t.stop();}if(ctx){ctx.close().catch(()=>{});ctx=null;}analyser=null;calibration=null;mode='off';clearAnimals();$('pause').textContent='Start listening';$('soundWord').textContent='MIC OFF';$('timer').textContent='0s';$('meterFill').style.width='0%';announce(reason);
+function removeActors(){for(const a of actors.values())a.el.remove();actors.clear();}
+function fitActor(a,w,spriteH){
+ if(a.entry)return;
+ const minY=a.s.water?Math.max(.72,.59+spriteH/world.clientHeight):a.profile.air?.2:.73;
+ a.baseY=clamp(a.baseY,minY,.96);a.y=clamp(a.y,minY,.98);
+ const b=boundsFor(a,a.y,w,spriteH);a.x=clamp(a.x,b.min,b.max);
 }
+function restoreMeadow(){
+ removeActors();state=savedVisit?.state||makeState();
+ if(savedVisit)for(const position of savedVisit.actors)spawn(SPECIES.find(s=>s.id===position.id),false,position);
+ updateRoster();$('timer').textContent=Math.floor(state.quiet[0])+'s';
+}
+function persistVisit(){
+ if(!visitStarted||previewing)return;
+ const raw=captureVisit({state,actors,baseline,calibrated,camera:viewport.scrollLeft/Math.max(1,world.clientWidth-viewport.clientWidth),motionTime});
+ savedVisit=restoreVisit(raw);
+ try{localStorage.setItem(VISIT_KEY,JSON.stringify(raw));storageWarning='';}catch{storageWarning='Progress cannot be saved in this browser. Keep this page open to retain your visitors.';}
+ const status=storageWarning||'Visitors and quiet progress save automatically in this browser on this website. Leaving pauses the meadow. No progress is earned while away.';if($('progressSaveStatus').textContent!==status)$('progressSaveStatus').textContent=status;
+}
+function stop(reason='Meadow paused. Your visitors and quiet progress are kept.'){
+ generation++;starting=false;$('start').disabled=false;$('pause').disabled=false;
+ const oldStream=stream;stream=null;if(oldStream)for(const t of oldStream.getTracks()){t.onended=null;t.onmute=null;t.stop();}
+ const oldCtx=ctx;ctx=null;if(oldCtx){oldCtx.onstatechange=null;oldCtx.close().catch(()=>{});}
+ analyser=null;calibration=null;mode='off';last=performance.now();
+ for(const [id,a] of actors)if(a.flee){a.el.remove();actors.delete(id);}
+ $('pause').textContent=visitStarted?'Resume listening':'Start listening';$('soundWord').textContent='PAUSED';$('timer').textContent=Math.floor(state.quiet[0])+'s';$('meterFill').style.width='0%';
+ persistVisit();challenges.persist();announce(reason);
+}
+function resetProgress(){
+ stop();previewing=false;removeActors();state=makeState();motionTime=0;visitStarted=true;saveClock=0;
+ challenges.resetCurrent();updateRoster();$('timer').textContent='0s';$('pause').textContent='Resume listening';persistVisit();
+ $('resetConfirm').hidden=true;$('resetProgress').hidden=false;$('resetProgress').focus();
+ announce('Progress reset. Resume listening for a fresh meadow. Your decorations, text, and settings are kept.');
+}
+$('resetProgress').onclick=()=>{$('resetConfirm').hidden=false;$('resetProgress').hidden=true;$('cancelReset').focus();};
+$('cancelReset').onclick=()=>{$('resetConfirm').hidden=true;$('resetProgress').hidden=false;$('resetProgress').focus();};
+$('confirmReset').onclick=resetProgress;
+$('settingsDialog').addEventListener('close',()=>{$('resetConfirm').hidden=true;$('resetProgress').hidden=false;});
 function errorText(error){if(!window.isSecureContext)return 'Open the published game using its HTTPS address. Microphone access needs a secure website.';if(!navigator.mediaDevices?.getUserMedia)return 'This browser view cannot access a microphone. Open the game URL directly in Safari, Chrome, or Edge.';if(['NotAllowedError','SecurityError'].includes(error.name))return 'Microphone access was blocked. Open the game URL directly (outside a preview), allow the microphone for that site, and check your device’s browser microphone permission. Then try again.';if(error.name==='NotFoundError')return 'No microphone was found. Connect or enable one, then try again.';if(error.name==='NotReadableError')return 'Your microphone could not start. Close other apps using it and try again.';return 'The microphone could not start. Please retry or use the preview.';}
-function beginCalibration(){if(mode!=='live'){ $('calibrationStatus').textContent='Start listening before recalibrating.';return;}calibration={time:0,values:[]};state.quiet.fill(0);$('calibrationStatus').textContent='Listening to your quiet room for three seconds…';announce('Stay quiet for three seconds while the microphone settles.');}
-async function start(){if(starting)return;stop('Connecting your microphone…');starting=true;const token=generation;$('start').disabled=true;$('pause').disabled=true;$('error').textContent='';try{
+function beginCalibration(){if(mode!=='live'){ $('calibrationStatus').textContent='Start listening before recalibrating.';return;}calibration={time:0,values:[]};$('calibrationStatus').textContent='Listening to your quiet room for three seconds…';announce('Stay quiet for three seconds while the microphone settles.');}
+async function start(){if(starting)return;if(previewing){previewing=false;restoreMeadow();}stop('Connecting your microphone…');starting=true;const token=generation;$('start').disabled=true;$('pause').disabled=true;$('error').textContent='';try{
  if(!isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new Error('unsupported');
- const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('unsupported');ctx=new AC();await ctx.resume();
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('unsupported');ctx=new AC();await ctx.resume();if(token!==generation)return;
  const incoming=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});if(token!==generation){incoming.getTracks().forEach(t=>t.stop());return;}stream=incoming;analyser=ctx.createAnalyser();analyser.fftSize=2048;samples=new Float32Array(analyser.fftSize);ctx.createMediaStreamSource(stream).connect(analyser);
- for(const track of stream.getAudioTracks()){track.onended=()=>stop('The microphone disconnected. Tap Start listening to reconnect.');track.onmute=()=>stop('The microphone was interrupted. Tap Start listening to reconnect.');}
- ctx.onstatechange=()=>{if(mode==='live'&&ctx&&ctx.state!=='running')stop('Audio was interrupted. Tap Start listening to resume.');};
- mode='live';$('welcome').hidden=true;$('pause').textContent='Pause listening';beginCalibration();
+ for(const track of stream.getAudioTracks()){track.onended=()=>stop('The microphone disconnected. Tap Resume listening to reconnect.');track.onmute=()=>stop('The microphone was interrupted. Tap Resume listening to reconnect.');}
+ ctx.onstatechange=()=>{if(mode==='live'&&ctx&&ctx.state!=='running')stop('Audio was interrupted. Tap Resume listening to resume.');};
+ mode='live';visitStarted=true;last=performance.now();$('welcome').hidden=true;$('pause').textContent='Pause';if(!calibrated)beginCalibration();else announce('Listening resumed. Your meadow continues where you left it.');persistVisit();
  }catch(error){if(token!==generation)return;const msg=errorText(error);stop(msg);$('welcome').hidden=false;$('error').textContent=msg;}finally{if(token===generation){starting=false;$('start').disabled=false;$('pause').disabled=false;}}}
 $('start').onclick=start;$('pause').onclick=()=>mode==='live'?stop():start();$('calibrate').onclick=beginCalibration;
-$('preview').onclick=()=>{stop();mode='preview';$('welcome').hidden=true;for(const name of ['Red Admiral Butterfly','Cabbage White Butterfly','Domestic Rabbit','House Sparrow','Red Fox','Snow Leopard','Komodo Dragon','Okapi','King Penguin','Harp Seal','Bottlenose Dolphin','Green Sea Turtle'])spawn(SPECIES.find(s=>s.name===name),true);announce('Preview · swipe or drag to explore. Start listening to discover animals.');$('pause').textContent='Start listening';};
-document.addEventListener('visibilitychange',()=>{if(document.hidden){manualHold=false;drag=null;autoCamera.velocity=0;autoCamera.position=null;if(mode!=='off'||starting)stop('Paused while you were away. Start listening for a fresh visit.');}});window.addEventListener('pagehide',()=>stop());
+$('preview').onclick=()=>{stop();previewing=true;removeActors();mode='preview';$('welcome').hidden=true;for(const name of ['Red Admiral Butterfly','Cabbage White Butterfly','Domestic Rabbit','House Sparrow','Red Fox','Snow Leopard','Komodo Dragon','Okapi','King Penguin','Harp Seal','Bottlenose Dolphin','Green Sea Turtle'])spawn(SPECIES.find(s=>s.name===name),true);announce('Separate preview · your saved visitors are kept. Start listening to return to your meadow.');$('pause').textContent=visitStarted?'Resume listening':'Start listening';};
+document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){manualHold=false;drag=null;autoCamera.velocity=0;autoCamera.position=null;stop('Paused while you were away. Resume listening to continue your saved meadow.');}});
+window.addEventListener('pagehide',()=>stop());
+window.addEventListener('pageshow',()=>{last=performance.now();});
 function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
- if(mode==='live'&&analyser){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
- if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;$('calibrationStatus').textContent='Calibrated. Noise Limit adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
- else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
+ if(mode==='live'&&analyser&&!document.hidden){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
+ if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;calibrated=true;persistVisit();$('calibrationStatus').textContent='Calibrated. Noise Limit adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
+ else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();persistVisit();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
  challenges.tick(dt,{listening:mode==='live',calibrating:!!calibration,quiet:level<=threshold(),visible:!document.hidden});
- const elapsed=Math.min(.05,dt),h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
+ const elapsed=(mode==='live'||mode==='preview')&&!document.hidden?Math.min(.05,dt):0,h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
+ motionTime+=elapsed;
+ if(mode==='live'){saveClock+=dt;if(saveClock>=2){saveClock=0;persistVisit();}}
  manualPause=Math.max(0,manualPause-elapsed);
- if(settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!$('challengeDialog').open&&!textBoxes.isEditing()){
+ if(elapsed>0&&settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!$('challengeDialog').open&&!textBoxes.isEditing()){
   autoCamera.position=advanceAutoscroll(autoCamera,autoCamera.position??viewport.scrollLeft,elapsed,Math.max(0,ww-viewport.clientWidth),60*settings.autoScrollSpeed);
   viewport.scrollLeft=autoCamera.position;updateLocation();
  }else{autoCamera.velocity=0;autoCamera.position=null;}
  for(const [id,a] of actors){
   const p=a.profile,w=p.size*scale,spriteH=w*165/264;
+  if(!elapsed){fitActor(a,w,spriteH);paintActor(a,w,spriteH,h,panel);continue;}
   if(a.flee){
    if(a.entry){a.entry=null;a.el.dataset.arrival='fleeing';a.dir=-(a.dir||a.faceTarget);}
    a.flee-=elapsed;if(a.flee<=0){a.el.remove();actors.delete(id);continue;}
@@ -151,17 +193,19 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
   a.phase+=elapsed*Math.PI*2*p.cadence*(p.air||p.motion==='pulse'?1:activity)*(a.flee?1.8:1);
   if(p.water)a.baseY=clamp(a.baseY,Math.max(.72,.59+spriteH/h),.96);
   a.hover+=((a.entry?0:1)-a.hover)*(1-Math.exp(-elapsed*3));
-  a.y=a.baseY+(p.air&&!settings.reduceMotion?(Math.sin(now/1000*1.2+a.phase*.16)*.008+Math.sin(now/1000*.6+a.phase)*.004)*a.hover*behavior.flight:0);
+  a.y=a.baseY+(p.air&&!settings.reduceMotion?(Math.sin(motionTime*1.2+a.phase*.16)*.008+Math.sin(motionTime*.6+a.phase)*.004)*a.hover*behavior.flight:0);
   if(!a.entry&&!a.flee){const {min,max}=boundsFor(a,a.y,w,spriteH);if(a.x<min){a.x=min;a.dir=1;a.velocity=Math.max(0,a.velocity);}if(a.x>max){a.x=max;a.dir=-1;a.velocity=Math.min(0,a.velocity);}}
   const left=paintActor(a,w,spriteH,h,panel);a.el.classList.toggle('idle',activity<.02&&!p.air);
-  if(left+w>=viewport.scrollLeft-100&&left<=viewport.scrollLeft+viewport.clientWidth+100){animateCritter(a.el,{phase:a.phase,time:now/1000+a.timeOffset,activity,profile:{...p,flight:behavior.flight},behavior:behavior.pose,blend:behavior.blend,reduced:settings.reduceMotion});}
+  if(left+w>=viewport.scrollLeft-100&&left<=viewport.scrollLeft+viewport.clientWidth+100){animateCritter(a.el,{phase:a.phase,time:motionTime+a.timeOffset,activity,profile:{...p,flight:behavior.flight},behavior:behavior.pose,blend:behavior.blend,reduced:settings.reduceMotion});}
  }
  if($('collectionDialog').open){for(const c of cards.values()){
   if(!c.visible||!state.present.has(c.s.id))continue;
   c.phase+=elapsed*Math.PI*2*c.profile.cadence;
-  animateCritter(c.card,{phase:c.phase,time:now/1000+c.timeOffset,activity:c.profile.motion==='settled'?0:1,profile:c.profile,reduced:settings.reduceMotion});
+  animateCritter(c.card,{phase:c.phase,time:motionTime+c.timeOffset,activity:c.profile.motion==='settled'?0:1,profile:c.profile,reduced:settings.reduceMotion});
  }}
  raf=requestAnimationFrame(frame);}
+if(savedVisit){restoreMeadow();$('welcome').hidden=true;$('pause').textContent='Resume listening';$('soundWord').textContent='PAUSED';announce('Your saved meadow is ready. Resume listening whenever your class is ready.');}
+$('progressSaveStatus').textContent=storageWarning||'Visitors and quiet progress save automatically in this browser on this website. Leaving pauses the meadow. No progress is earned while away.';
 raf=requestAnimationFrame(frame);
 
 initControlsVisibility();

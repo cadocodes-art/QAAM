@@ -20,3 +20,6 @@
 @media(max-height:590px){.autoscroll{top:108px;padding:6px 12px}.hud{top:168px}}
 @media(max-height:590px) and (min-width:900px){.autoscroll{top:12px}.hud{top:117px}}
 @media(max-width:380px){h1{font-size:20px}.autoscroll{width:250px;max-width:calc(100% - 28px)}}
+
+/* V1.5.1: deliberate reset, separate from pausing. */
+.reset-section{font:14px/1.5 Arial,sans-serif;border-top:1px solid #d7dfce;margin-top:22px;padding-top:12px}.reset-section h3{font:22px Georgia,serif;margin:10px 0}.reset-section .muted{font-size:14px}.reset-section .pill{font-size:14px;min-height:44px}.reset-actions{display:flex;gap:10px;flex-wrap:wrap}#resetProgress,#confirmReset{color:#874735;border-color:#b98b78;background:#fff5ed}#resetConfirm{padding:12px 0}
