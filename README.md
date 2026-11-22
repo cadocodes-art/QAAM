@@ -3,6 +3,20 @@
 This is the complete online project, based on V1.5.1.
 It keeps CadoCodes’ welcome screen, logo, panorama, text tools, and hosting setup.
 
+## V1.6 icon and preview fix
+
+The Settings, Images, and Timer pictures are now embedded in `index.html`.
+They load even if the separate `icons/` folder was missed during upload. The
+original image files are also included for future editing.
+
+“Take a peek without a microphone” now selects exactly ten different
+Ultra-Common animals. It does not add rarer animals or affect the saved meadow.
+
+If V1.6 already runs on your website, replace its `index.html` and `game.mjs`
+with these updated files, keeping the exact names. Commit them in the same GitHub
+folder as the existing files, then wait for Cloudflare's deployment and reload.
+This update does not reset game progress, settings, text, or imported pictures.
+
 ## New in V1.6
 
 The top-right toolbar now contains six equal-size circular buttons in two columns
@@ -55,7 +69,7 @@ Minutes and seconds must be 0–59; 24 hours requires both to be zero.
   device crash can lose the latest unsaved second.
 - Settings’ **Reset progress** keeps the timer. Use **Reset timer** separately.
 
-Upload the entire extracted project, including the new `icons/` directory and
+For a full installation, upload the entire extracted project, including
 all six new files: `classroom-tools.css`, `image-model.mjs`, `image-store.mjs`,
 `image-overlays.mjs`, `timer-model.mjs`, and `countdown.mjs`.
 

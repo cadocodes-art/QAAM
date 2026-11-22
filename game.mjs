@@ -143,7 +143,16 @@ async function start(){if(starting)return;if(previewing){previewing=false;restor
  mode='live';visitStarted=true;last=performance.now();$('welcome').hidden=true;$('pause').textContent='Pause';if(!calibrated)beginCalibration();else announce('Listening resumed. Your meadow continues where you left it.');persistVisit();
  }catch(error){if(token!==generation)return;const msg=errorText(error);stop(msg);$('welcome').hidden=false;$('error').textContent=msg;}finally{if(token===generation){starting=false;$('start').disabled=false;$('pause').disabled=false;}}}
 $('start').onclick=start;$('pause').onclick=()=>mode==='live'?stop():start();$('calibrate').onclick=beginCalibration;
-$('preview').onclick=()=>{stop();previewing=true;removeActors();mode='preview';$('welcome').hidden=true;for(const name of ['Red Admiral Butterfly','Cabbage White Butterfly','Domestic Rabbit','House Sparrow','Red Fox','Snow Leopard','Komodo Dragon','Okapi','King Penguin','Harp Seal','Bottlenose Dolphin','Green Sea Turtle'])spawn(SPECIES.find(s=>s.name===name),true);announce('Separate preview · your saved visitors are kept. Start listening to return to your meadow.');$('pause').textContent=visitStarted?'Resume listening':'Start listening';};
+$('preview').onclick=()=>{
+ stop();previewing=true;removeActors();mode='preview';$('welcome').hidden=true;
+ const candidates=SPECIES.filter(s=>s.tier===0);
+ for(let i=0;i<10&&candidates.length;i++){
+  const [chosen]=candidates.splice(Math.floor(Math.random()*candidates.length),1);
+  spawn(chosen,true);
+ }
+ announce('10 Ultra-Common visitors · separate preview. Your saved meadow is kept.');
+ $('pause').textContent=visitStarted?'Resume listening':'Start listening';
+};
 document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){manualHold=false;drag=null;autoCamera.velocity=0;autoCamera.position=null;stop('Paused while you were away. Resume listening to continue your saved meadow.');}});
 window.addEventListener('pagehide',()=>stop());
 window.addEventListener('pageshow',()=>{last=performance.now();});
