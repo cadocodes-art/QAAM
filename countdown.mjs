@@ -38,5 +38,5 @@ export function initCountdown({announce,onInteract=()=>{}}){
  document.addEventListener('visibilitychange',()=>{if(document.hidden){const now=performance.now();if(state.running)stepTimer(state,(now-last)/1000);state.running=false;last=now;save();render();}else last=performance.now();});
  window.addEventListener('pagehide',()=>{pause();save();});
  setFields();render();say('countdownSave',failed?'Saved timer could not be restored.':'Saved in this browser. Leaving the page pauses the timer.');setInterval(tick,100);
- return {isEditing:()=>dialog.open};
+ return {isEditing:()=>dialog.open,open};
 }

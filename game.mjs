@@ -26,7 +26,7 @@ const announce=text=>{$('message').textContent=text;};
 const textBoxes=initTextBoxes({announce,onInteract:()=>pauseAutoscroll()});
 const imageOverlays=initImages({announce,onInteract:()=>pauseAutoscroll()});
 const countdown=initCountdown({announce,onInteract:()=>pauseAutoscroll()});
-const challenges=initChallenges({announce,onInteract:()=>pauseAutoscroll(),onListen:start,getMode:()=>mode});
+const challenges=initChallenges({announce,onInteract:()=>pauseAutoscroll(),onListen:start,onTimer:()=>countdown.open(),getMode:()=>mode,getPresent:()=>[...state.present]});
 function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=k==='autoScrollSpeed'?settings[k]+'×':settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);$('enableMotion').hidden=!settings.reduceMotion;$('motionHelp').textContent=settings.reduceMotion?'Animal parts are paused. Turn Reduce motion off to animate legs, tails, and wings.':'Legs, tails, and wings animate in the meadow and on discovered collection cards.';try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
 for(const k of Object.keys(defaults))$(k).addEventListener('input',()=>{settings[k]=$(k).type==='checkbox'?$(k).checked:Number($(k).value);if(k==='autoScroll'){autoCamera.velocity=0;autoCamera.position=null;autoCamera.pause=0;manualPause=0;}applySettings();});applySettings();
 const cards=new Map(),collectionItems=new WeakMap();
@@ -156,12 +156,12 @@ $('preview').onclick=()=>{
 document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){manualHold=false;drag=null;autoCamera.velocity=0;autoCamera.position=null;stop('Paused while you were away. Resume listening to continue your saved meadow.');}});
 window.addEventListener('pagehide',()=>stop());
 window.addEventListener('pageshow',()=>{last=performance.now();});
-function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
+function frame(now){const goalDt=Math.max(0,(now-last)/1000||0),dt=Math.min(goalDt,.1),wasCalibrating=!!calibration;last=now;
  if(mode==='live'&&analyser&&!document.hidden){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
  if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;calibrated=true;persistVisit();$('calibrationStatus').textContent='Calibrated. Noise Limit adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
  else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();persistVisit();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
- challenges.tick(dt,{listening:mode==='live',calibrating:!!calibration,quiet:level<=threshold(),visible:!document.hidden});
+ challenges.tick(goalDt,{listening:mode==='live',calibrating:wasCalibrating||!!calibration,quiet:level<=threshold(),visible:!document.hidden});
  const elapsed=(mode==='live'||mode==='preview')&&!document.hidden?Math.min(.05,dt):0,h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
  motionTime+=elapsed;
  if(mode==='live'){saveClock+=dt;if(saveClock>=2){saveClock=0;persistVisit();}}

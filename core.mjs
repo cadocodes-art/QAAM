@@ -3,6 +3,11 @@ export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function volumeLevel(samples){let power=0;for(const n of samples)power+=n*n;return clamp((20*Math.log10(Math.max(1e-7,Math.sqrt(power/samples.length)))+65)/60*100,0,100);}
 export const CHECK_SECONDS=5;
 export const STARTLE_RESET_SECONDS=2;
+export function startleCount(population,random=Math.random){
+ const count=Math.max(0,Math.floor(population));
+ if(!count)return 0;
+ return Math.min(count,Math.max(1,Math.floor(count*.045))+(random()<.5?0:1));
+}
 export function makeState(){return {quiet:TIERS.map(()=>0),clock:0,present:new Set(),startleReady:true,calmAfterStartle:0};}
 export function advance(state,dt,level,threshold,random=Math.random){
  const fled=[],arrived=[];dt=clamp(dt,0,.25);
@@ -13,7 +18,7 @@ export function advance(state,dt,level,threshold,random=Math.random){
   if(state.startleReady){
    state.startleReady=false;
    const candidates=SPECIES.filter(s=>state.present.has(s.id));
-   const count=Math.min(candidates.length,random()<.5?1:2);
+   const count=startleCount(candidates.length,random);
    for(let i=0;i<count;i++){
     const [chosen]=candidates.splice(Math.floor(random()*candidates.length),1);
     state.present.delete(chosen.id);fled.push(chosen);
