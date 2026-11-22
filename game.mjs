@@ -1,3 +1,6 @@
+import {noiseThreshold,readNoiseLimit} from './noise-limit.mjs';
+import {initChallenges} from './challenges.mjs';
+import {createBehavior,stepBehavior} from './animal-behavior.mjs';
 import {initControlsVisibility} from './controls-visibility.mjs';
 import {initTextBoxes} from './text-boxes.mjs';
 import {TIERS,SPECIES} from './data.mjs';
@@ -8,14 +11,15 @@ import {animateCritter} from './animal-motion.mjs';
 import {visualProfile} from './motion-profile.mjs';
 import {planArrival,advanceArrival,advanceAutoscroll} from './travel.mjs';
 const $=id=>document.getElementById(id),world=$('world'),viewport=$('viewport');
-const defaults={showSound:true,showCount:true,showTimer:true,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,sensitivity:50,scrollSpeed:1,autoScroll:false,autoScrollSpeed:1};
-let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem('quiet-mouse-v11-settings')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]===typeof defaults[k])settings[k]=saved[k];}catch{}
-settings.sensitivity=clamp(settings.sensitivity,0,100);settings.scrollSpeed=clamp(settings.scrollSpeed,.5,2);settings.autoScrollSpeed=Number.isFinite(settings.autoScrollSpeed)?clamp(settings.autoScrollSpeed,.25,3):1;
+const defaults={showSound:true,showCount:true,showTimer:true,reduceMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,noiseLimit:50,scrollSpeed:1,autoScroll:false,autoScrollSpeed:1};
+let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem('quiet-mouse-v11-settings')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]===typeof defaults[k])settings[k]=saved[k];settings.noiseLimit=readNoiseLimit(saved);}catch{}
+settings.scrollSpeed=clamp(settings.scrollSpeed,.5,2);settings.autoScrollSpeed=Number.isFinite(settings.autoScrollSpeed)?clamp(settings.autoScrollSpeed,.25,3):1;
 let state=makeState(),actors=new Map(),mode='off',stream=null,ctx=null,analyser=null,samples=null,starting=false,generation=0,baseline=22,level=0,last=0,calibration=null,raf=0;
 const autoCamera={direction:1,velocity:0,pause:0,position:null};let manualPause=0,manualHold=false;
-const threshold=()=>clamp(baseline+18-(settings.sensitivity-50)*.4,10,80);
+const threshold=()=>noiseThreshold(baseline,settings.noiseLimit);
 const announce=text=>{$('message').textContent=text;};
 const textBoxes=initTextBoxes({announce,onInteract:()=>pauseAutoscroll()});
+const challenges=initChallenges({announce,onInteract:()=>pauseAutoscroll(),onListen:start,getMode:()=>mode});
 function applySettings(){for(const k of Object.keys(defaults)){const input=$(k);if(input.type==='checkbox')input.checked=settings[k];else{input.value=settings[k];$(k+'Value').textContent=k==='autoScrollSpeed'?settings[k]+'×':settings[k];}}$('soundPanel').hidden=!settings.showSound;$('countPanel').hidden=!settings.showCount;$('timerPanel').hidden=!settings.showTimer;document.body.classList.toggle('reduced',settings.reduceMotion);$('enableMotion').hidden=!settings.reduceMotion;$('motionHelp').textContent=settings.reduceMotion?'Animal parts are paused. Turn Reduce motion off to animate legs, tails, and wings.':'Legs, tails, and wings animate in the meadow and on discovered collection cards.';try{localStorage.setItem('quiet-mouse-v11-settings',JSON.stringify(settings));}catch{}}
 for(const k of Object.keys(defaults))$(k).addEventListener('input',()=>{settings[k]=$(k).type==='checkbox'?$(k).checked:Number($(k).value);if(k==='autoScroll'){autoCamera.velocity=0;autoCamera.position=null;autoCamera.pause=0;manualPause=0;}applySettings();});applySettings();
 const cards=new Map(),collectionItems=new WeakMap();
@@ -70,7 +74,7 @@ function spawn(s,preview=false){
  const entry=planArrival({...bounds,y,width:w,worldWidth:world.clientWidth,worldHeight:h,viewLeft:viewport.scrollLeft,viewWidth:viewport.clientWidth,air:profile.air,fieldFlight:profile.fieldFlight,water:s.water});
  const el=document.createElement('div');el.className='animal'+(s.water?' water':'')+(profile.air?' airborne':'');el.dataset.species=s.kind;el.dataset.motion=profile.motion;el.dataset.entry=entry.side;el.dataset.arrival='entering';
  el.innerHTML=art(s);el.setAttribute('aria-label',s.name);el.setAttribute('role','img');
- const a={s,profile,el,entry,x:entry.x,y:entry.y,baseY:entry.y,dir:entry.dir,velocity:0,facing:entry.dir,faceTarget:entry.dir,target:4,phase:Math.random()*6.28,flee:0,preview,timeOffset:Math.random()*10,hover:0};
+ const a={s,profile,el,entry,x:entry.x,y:entry.y,baseY:entry.y,dir:entry.dir,velocity:0,facing:entry.dir,faceTarget:entry.dir,target:4,phase:Math.random()*6.28,flee:0,preview,timeOffset:Math.random()*10,hover:0,behavior:createBehavior(s,profile)};
  // Position outside the camera before inserting the element: no flash at origin.
  paintActor(a,w,spriteH,h,world.clientWidth/3);$('animals').append(el);actors.set(s.id,a);
 }
@@ -102,12 +106,13 @@ $('preview').onclick=()=>{stop();mode='preview';$('welcome').hidden=true;for(con
 document.addEventListener('visibilitychange',()=>{if(document.hidden){manualHold=false;drag=null;autoCamera.velocity=0;autoCamera.position=null;if(mode!=='off'||starting)stop('Paused while you were away. Start listening for a fresh visit.');}});window.addEventListener('pagehide',()=>stop());
 function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
  if(mode==='live'&&analyser){analyser.getFloatTimeDomainData(samples);level=volumeLevel(samples);const limit=threshold();$('meterFill').style.width=level+'%';$('meterFill').style.background=level>limit?'#c28565':'#6f9c72';$('thresholdMarker').style.left=limit+'%';$('soundWord').textContent=calibration?'CALIBRATING':level>limit?'TOO LOUD':'QUIET';
- if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;$('calibrationStatus').textContent='Calibrated. Sensitivity adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
+ if(calibration){calibration.values.push(level);calibration.time+=dt;if(calibration.time>=3){calibration.values.sort((a,b)=>a-b);baseline=clamp(calibration.values[Math.floor(calibration.values.length*.5)],0,55);calibration=null;$('calibrationStatus').textContent='Calibrated. Noise Limit adjusts the quiet threshold.';announce('The meadow is listening. Stay quiet and see who comes.');}}
  else{const result=advance(state,dt,level,limit);for(const s of result.fled){const a=actors.get(s.id);if(a){a.flee=1.2;a.el.classList.add('fleeing');}}for(const s of result.arrived)spawn(s);if(result.fled.length||result.arrived.length){updateRoster();announce(result.fled.length?`A sound startled ${result.fled.length} ${result.fled.length===1?'visitor':'visitors'}. Let the quiet settle again.`:result.arrived.map(s=>s.name).join(', ')+' arrived.');}}
  $('timer').textContent=Math.floor(state.quiet[0])+'s';}
+ challenges.tick(dt,{listening:mode==='live',calibrating:!!calibration,quiet:level<=threshold(),visible:!document.hidden});
  const elapsed=Math.min(.05,dt),h=world.clientHeight,ww=world.clientWidth,panel=ww/3,scale=clamp(h/850,.65,1.25);
  manualPause=Math.max(0,manualPause-elapsed);
- if(settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!textBoxes.isEditing()){
+ if(settings.autoScroll&&!document.hidden&&!manualHold&&manualPause===0&&!$('collectionDialog').open&&!$('settingsDialog').open&&!$('challengeDialog').open&&!textBoxes.isEditing()){
   autoCamera.position=advanceAutoscroll(autoCamera,autoCamera.position??viewport.scrollLeft,elapsed,Math.max(0,ww-viewport.clientWidth),60*settings.autoScrollSpeed);
   viewport.scrollLeft=autoCamera.position;updateLocation();
  }else{autoCamera.velocity=0;autoCamera.position=null;}
@@ -118,6 +123,8 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
    a.flee-=elapsed;if(a.flee<=0){a.el.remove();actors.delete(id);continue;}
   }
   let actualSpeed;
+  const behavior=stepBehavior(a,elapsed,{w,spriteH,h,ww,panel,scale,flowers:challenges.getFlowers()});
+  a.el.dataset.behavior=behavior.pose;
   if(a.entry){
    const e=a.entry;
    if(p.water)e.targetY=clamp(e.targetY,Math.max(.72,.59+spriteH/h),.96);
@@ -130,24 +137,24 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
    const moved=advanceArrival(e,a.x,a.baseY,elapsed,panel,h,speed);
    e.speed=moved.speed;a.x=moved.x;a.baseY=moved.y;a.velocity=moved.vx;actualSpeed=Math.hypot(moved.vx,moved.vy);
    if(moved.done){a.entry=null;a.el.dataset.arrival='arrived';a.target=3+Math.random()*3;if(p.motion==='settled'){a.dir=0;a.velocity=0;}}
-  }else{
+  }else if(behavior.handled){actualSpeed=(behavior.activity||0)*p.speed*scale;}else{
    a.target-=elapsed;
    if(a.target<=0&&!a.flee){a.dir=p.motion==='settled'?0:Math.random()<(p.air?.15:.30)?0:Math.random()<.5?-1:1;a.target=2.5+Math.random()*5.5;}
-   const desired=(a.flee?(a.dir||a.faceTarget):a.dir)*p.speed*scale*(a.flee?4:1);
+   const desired=(a.flee?(a.dir||a.faceTarget):a.dir)*p.speed*scale*(a.flee?4:behavior.speedScale);
    a.velocity+=(desired-a.velocity)*(1-Math.exp(-elapsed*(a.flee?8:4)));
    const hop=p.motion==='hop'&&!settings.reduceMotion?.35+Math.max(0,Math.sin(a.phase))*1.3:1;
    a.x+=a.velocity*hop*elapsed/panel;actualSpeed=Math.abs(a.velocity);
   }
-  const activity=clamp(actualSpeed/Math.max(1,p.speed*scale),0,1);
+  const activity=behavior.handled?behavior.activity:clamp(actualSpeed/Math.max(1,p.speed*scale),0,1);
   if(Math.abs(a.velocity)>.8)a.faceTarget=Math.sign(a.velocity);
   a.facing+=(a.faceTarget-a.facing)*(1-Math.exp(-elapsed*13));
   a.phase+=elapsed*Math.PI*2*p.cadence*(p.air||p.motion==='pulse'?1:activity)*(a.flee?1.8:1);
   if(p.water)a.baseY=clamp(a.baseY,Math.max(.72,.59+spriteH/h),.96);
   a.hover+=((a.entry?0:1)-a.hover)*(1-Math.exp(-elapsed*3));
-  a.y=a.baseY+(p.air&&!settings.reduceMotion?(Math.sin(now/1000*1.2+a.phase*.16)*.008+Math.sin(now/1000*.6+a.phase)*.004)*a.hover:0);
+  a.y=a.baseY+(p.air&&!settings.reduceMotion?(Math.sin(now/1000*1.2+a.phase*.16)*.008+Math.sin(now/1000*.6+a.phase)*.004)*a.hover*behavior.flight:0);
   if(!a.entry&&!a.flee){const {min,max}=boundsFor(a,a.y,w,spriteH);if(a.x<min){a.x=min;a.dir=1;a.velocity=Math.max(0,a.velocity);}if(a.x>max){a.x=max;a.dir=-1;a.velocity=Math.min(0,a.velocity);}}
   const left=paintActor(a,w,spriteH,h,panel);a.el.classList.toggle('idle',activity<.02&&!p.air);
-  if(left+w>=viewport.scrollLeft-100&&left<=viewport.scrollLeft+viewport.clientWidth+100){animateCritter(a.el,{phase:a.phase,time:now/1000+a.timeOffset,activity,profile:p,reduced:settings.reduceMotion});}
+  if(left+w>=viewport.scrollLeft-100&&left<=viewport.scrollLeft+viewport.clientWidth+100){animateCritter(a.el,{phase:a.phase,time:now/1000+a.timeOffset,activity,profile:{...p,flight:behavior.flight},behavior:behavior.pose,blend:behavior.blend,reduced:settings.reduceMotion});}
  }
  if($('collectionDialog').open){for(const c of cards.values()){
   if(!c.visible||!state.present.has(c.s.id))continue;
@@ -158,3 +165,4 @@ function frame(now){const dt=Math.min((now-last)/1000||0,.1);last=now;
 raf=requestAnimationFrame(frame);
 
 initControlsVisibility();
+$('start').disabled=false;$('preview').disabled=false;

@@ -1,14 +1,78 @@
-# Quiet as a Mouse - V1.4.1
+# Quiet as a Mouse — V1.5 · Classroom & Wildlife
 
-V1.4.1 replaces the opening popup with a large welcome screen containing
-CadoCodes' message and the existing Enter the meadow button. The circular
-CadoCodes logo sits below Settings and Text in the top-right corner and
-remains visible when the controls hide. The screen adapts to small displays
-and can scroll on short screens so its buttons remain reachable.
+This is the complete online project, based on your supplied V1.4.1 ZIP.
+It keeps CadoCodes’ welcome screen, logo, panorama, text tools, and hosting setup.
 
-The microphone-free preview, privacy notice, microphone error messages,
-Auto-Hide behavior, classroom text boxes, saved settings and gameplay remain.
-The game title, top-left badge, text panel and animal preview show V1.4.1.
+## Classroom challenges
+
+1. Enter the meadow and open the circular **trophy / GOALS** button.
+2. Choose **1–60 minutes** of accumulated quiet time (default: 10 minutes).
+3. Choose **Start challenge**. If needed, the game starts the microphone flow.
+4. Quiet time adds up using the sound bar’s quiet threshold. Noise pauses the
+   goal; it does not erase time already earned. These are separate from the
+   continuous quiet timers and probability checks used for animal arrivals.
+5. Pause/resume the challenge in the Goals panel, or reset its progress to
+   choose a different target. You can also hide its on-screen progress card.
+6. Each of the first three completed goals earns a decoration: **wildflower
+   patches**, then a **meadow log**, then **garden stones**. Each reward unlocks
+   once. Later goals still celebrate and count toward your completed total.
+7. Use the reward buttons to show or hide earned decorations. A few small
+   starter flowers are always present for visiting butterflies and bees.
+
+Completion has a gentle visual message only—no sound. Decorations and challenge
+progress save locally in this browser on this website. Reloading always pauses
+the challenge. Resume it from Goals. Progress is saved periodically and when
+leaving the page; abrupt browser/device shutdown may lose the last few seconds.
+No time is earned during calibration, microphone-free preview, microphone
+interruption, a paused challenge, or time away from the page. Closing or hiding
+the page never awards offline time. Blocked storage is explained in the panel.
+
+## Noise Limit: −100 to 200
+
+The former Microphone sensitivity control is now **Noise Limit**, from **−100
+through 200** in steps of 1. **Higher numbers allow more noise.** −100 is the
+quietest limit; 200 is the most forgiving. The default stays 50.
+
+Existing sensitivity settings are converted automatically (`Noise Limit =
+100 − old sensitivity`) to keep the same effective threshold for your room.
+New Noise Limit settings take priority on later visits. Recalibration still
+adapts the threshold to your room. These are game settings, not decibels.
+The sound bar, classroom goal, and animal quietness checks use the same base
+limit; rare tiers still require quieter sound levels.
+
+## More animal behavior
+
+- Rabbits and hares slow down, lower their heads to nibble, and lift them again.
+  Their ears, face, and whiskers stay attached to the same head joint.
+- Flying birds descend onto the meadow, unfold their feet, fold their wings,
+  rest briefly, and take off again. They choose a landing spot on land.
+- Butterflies, moths, and bees visit the meadow’s flowers, pause with gentler
+  wing motion, and fly away again.
+- Other land animals take occasional resting pauses with subtle breathing.
+- Aquatic animals vary their cruising speed while continuing fin/tail motion.
+  Stationary shellfish stay settled.
+
+Each animal follows its own timing. Loud scares interrupt these behaviors.
+Reduce motion still disables decorative body and joint motion. Camera scrolling,
+animal entrances, all 210 species, spawn odds, and the 1–2 animal scare rule remain.
+The microphone-free preview includes rabbits, butterflies, birds, and swimmers
+so you can watch the new behaviors without connecting a microphone. Allow time
+for arrivals and for each animal to settle into a behavior.
+
+## V1.5 verification
+
+Checked goal accumulation, loud/quiet gating, calibration and microphone gates,
+pause/resume, completion exactly once, all three rewards, malformed saved data,
+and restoring progress paused. Browser checks use synthetic sound input rather
+than a real microphone. Visual checks cover desktop, tablet, phone, small phone,
+and landscape viewport sizes. This is not testing on physical iPad/Android hardware.
+
+Behavior simulation checks cover all 210 species, land-safe resting destinations,
+bounded motion, and valid joint poses; all 210 SVG illustrations parse correctly.
+Rarity and scare logic are checked against the previous release.
+
+New modules: `challenge-model.mjs`, `challenges.mjs`, `challenges.css`,
+`meadow-decor.mjs`, `animal-behavior.mjs`, and `noise-limit.mjs`. Upload these with the other files.
 
 ## Controls disappear after two seconds
 
@@ -24,8 +88,7 @@ available during a held drag or while a keyboard user has a control focused.
 Hidden controls cannot be clicked or reached accidentally. Reduced motion
 removes the fade animation.
 
-The badge says **V1.4.1 · AUTO-HIDE** to distinguish this build from the earlier
-V1.4 text-box release.
+The badge says **V1.5 · CLASSROOM & WILDLIFE**.
 
 ## Text boxes in V1.4
 
@@ -140,7 +203,7 @@ After publishing, open **animal-preview.html** on your site to inspect every
 animal. You can search by name, filter movement groups, and pause animations.
 For your existing site that is:
 
-https://qaam.pages.dev/animal-preview.html
+https://qaam-school-noise.com/animal-preview.html
 
 This optional creator preview reveals all animal names. The actual game's
 collection still hides names until visitors arrive.
@@ -151,13 +214,13 @@ sex, age, breed, and individual coloration can differ in real animals.
 
 ## Upload the update
 
-1. Download **Quiet-as-a-Mouse-V1.4.1.zip** and choose Extract All.
+1. Download **Quiet-as-a-Mouse-V1.5.zip** and choose Extract All.
 2. Open the extracted folder and select all files and the fonts folder inside it.
 3. Upload those files to the top level of your existing QAAM GitHub repository.
 4. Replace matching files and include every new `.mjs`/`.css` file, all PNGs, and the `fonts` folder.
 5. Commit to the branch connected to your Cloudflare production site.
 6. Wait for that deployment to finish, then reload the site. On Windows,
-   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.4.1.
+   Ctrl+F5 requests a fresh page. Check that the top-left badge says V1.5.
 
 Upload the files themselves, not the ZIP or an enclosing folder. Keep the
 homepage filename exactly `index.html`. No build or package installation is
@@ -194,8 +257,8 @@ Use the published HTTPS site in a browser with microphone support and allow
 access when starting. Audio is processed on the device, never recorded or
 uploaded. The main game's preview works without a microphone.
 
-Animal artwork was rasterized and visually reviewed during V1.3/V1.3.1 and is
-unchanged in this update. Automated checks cover
+Animal artwork was reviewed during V1.3/V1.3.1. V1.5 preserves those designs
+and adds rabbit head joints and feet for grounded flying birds. Automated checks cover
 roster coverage, SVG validity, joint poses, movement profiles, shoreline bounds,
 rarity timers/chances, and the one-or-two-animal scare rule. V1.3.3 checks also
 cover offscreen starts, continuous habitat-safe entrance paths, Autoscroll speed

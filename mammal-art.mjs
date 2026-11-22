@@ -117,8 +117,9 @@ function rabbit(o){const c=o.coat,h=o.hare;let a=J('tail',85,112,E(-8,4,11,11,'#
  a+=leg(114,116,29,shade(c),10,0,false,'hop-leg')+leg(166,115,30,shade(c),7,PI,false,'hop-leg');
  a+=E(h?123:120,107,h?47:43,h?29:34,c)+E(142,119,30,21,'#e7dcc2');if(o.patch)a+=E(99,101,24,25,'#b69578');
  a+=J('hop-leg',108,117,E(0,0,20,22,c)+P('M-8 14Q-12 28 6 30L30 30Q39 25 28 23L10 20Z',c)+L('M26 25v4M20 25v4',shade(c),.8),0,12)+leg(160,114,31,c,7,PI,false,'hop-leg');
+ a+='<g data-anim="feed-head" data-pivot="151 101" transform="translate(151 101)"><g transform="translate(-151 -101)">';
  a+=ear(164,72,c,9,h?55:45,true,h?P('M-9-45L-4-55L2-41Z','#4a4435'):'')+ear(181,72,c,8,h?55:43,true,h?P('M-5-49L-1-56L5-42Z','#4a4435'):'');
- return a+E(175,86,26,24,c)+E(192,98,15,11,'#eee2c9')+nose(204,94,3)+eye(184,82,3.1)+L('M196 101q4 4 8 0',shade(c),1)+whiskers(197,101);
+ return a+E(175,86,26,24,c)+E(192,98,15,11,'#eee2c9')+nose(204,94,3)+eye(184,82,3.1)+L('M196 101q4 4 8 0',shade(c),1)+whiskers(197,101)+'</g></g>';
 }
 function small(o){const c=o.coat,low=o.badger||o.beaver||o.binturong;let a='';
  if(o.tail==='bare')a+=tail(78,115,'M0 0C-18 14-42 23-57 8Q-64 0-65 9',o.head==='rat'?'#b39487':'#c2a08a',o.muskrat?4.5:3.5);

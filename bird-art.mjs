@@ -199,4 +199,10 @@ function penguin(p){
  return a;
 }
 const renderers={song,dove,gull,falcon,waterfowl,fowl,wader,ratite,penguin};
-export function drawBird(s){const p=species[s.name];return p?renderers[p.family](p):null;}
+export function drawBird(s){
+ const p=species[s.name];if(!p)return null;let drawing=renderers[p.family](p);
+ if(['song','gull','falcon'].includes(p.family)){
+  drawing=drawing.replace(/(<g data-anim="leg"[^>]*>)([\s\S]*?)(<\/g>)/g,(_,open,foot,close)=>open+'<g data-flight-foot="">'+foot+'</g><path data-ground-foot="" opacity="0" d="M0 0l1 24m0 0l-7 4m7-4l10 3m-10-3l4 5" fill="none" stroke="'+(p.bill||'#80705a')+'" stroke-width="2.4" stroke-linecap="round"/>'+close);
+ }
+ return drawing;
+}
